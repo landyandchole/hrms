@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ProjectSecurityMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		project_security
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+	    PRO_ID,
+		PROJECT_ID,	
+		PROJECT_NAME,	
+		PROJECT_MANAGER,
+		ROOM_NAME,
+		PROJECT_THE,
+		PROJECT_DEPARTMENT,
+		PROJECT_STATE,
+		ACCESSORIES,
+		PC_ID,
+		PC_NUMBER,
+		PC_STATE,
+		USER,
+		USER_ID,
+		APPLICANT,
+		PC_ADMISSION,
+		ADMISSIONDATE,
+		ADMISSIONCHARGE,
+		PC_EXIT,
+		EXITDATE,
+		EXITCHARGE,
+		REMARKS,
+		PC_LEAVE_ITEMID,
+		PC_LEAVEID,	
+		APPLICANT_NO,	
+		FLAG,
+		CREATIONUSER,
+		CREATIONDATE,
+		UPDATEUSER,
+		UPDATEDATE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+	    #{PRO_ID},
+		#{PROJECT_ID},	
+		#{PROJECT_NAME},	
+		#{PROJECT_MANAGER},
+		#{ROOM_NAME},
+		#{PROJECT_THE},
+		#{PROJECT_DEPARTMENT},
+		#{PROJECT_STATE},
+		#{ACCESSORIES},
+		#{PC_ID},
+		#{PC_NUMBER},
+		#{PC_STATE},
+		#{USER},
+		#{USER_ID},
+		#{APPLICANT},
+		#{PC_ADMISSION},
+		#{ADMISSIONDATE},
+		#{ADMISSIONCHARGE},
+		#{PC_EXIT},
+		#{EXITDATE},
+		#{EXITCHARGE},
+		#{REMARKS},
+		#{PC_LEAVE_ITEMID},
+		#{PC_LEAVEID},
+		#{APPLICANT_NO},		
+		#{FLAG},
+		#{CREATIONUSER},
+		#{CREATIONDATE},
+		#{UPDATEUSER},
+		#{UPDATEDATE}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>  
+	
+	
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			PROJ_ID = #{PROJ_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="editstate" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			PC_STATE = (select dic.DICTIONARIES_ID from SYS_DICTIONARIES dic where dic.NAME=#{PC_STATE})
+		where 
+		PC_LEAVEID = #{PC_LEAVEID}
+	</update>
+	
+	<!-- 修改pc状态 -->
+	<update id="editpcstate" parameterType="pd">
+		update
+		pc_list
+		set 
+			DEPOT = (select dic.DICTIONARIES_ID from SYS_DICTIONARIES dic where dic.DICTIONARIES_ID = #{PC_STATE})
+		where    
+         PC_NO = #{PC_NUMBER}
+	</update>
+	
+	<!-- 根据pc编号修改在库情况-->
+	<update id="editdepot" parameterType="pd">
+		update  
+        pc_list  
+        set 
+            DEPOT = 'cd11cb2ebefa4e99b94a62aa5ab44a59'
+        WHERE
+            PC_NO =#{PC_NUMBER}
+	</update>
+	
+	
+	<!-- 修改pc状态为已入场 -->
+	<update id="pcEntried" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			PC_STATE =#{PC_STATE},
+			PC_ADMISSION=#{PC_ADMISSION},
+			ADMISSIONDATE=#{ADMISSIONDATE}
+		where    
+        PC_NUMBER = #{PC_NO} AND FLAG="0"
+	</update>
+	
+	
+	<!-- 修改pc状态为已退场 -->
+	<update id="pcExited" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			PC_STATE =#{PC_STATE},
+			PC_EXIT=#{PC_EXIT},
+			EXITDATE=#{EXITDATE}
+		where    
+         PC_NUMBER = #{PC_NO} AND FLAG="0"
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="getPcState" parameterType="pd" resultType="pd">
+		select 	PC_STATE	 from 
+		<include refid="tableName"></include>
+		where 
+			PC_NUMBER = #{PC_NO}  AND FLAG="0"
+	</select>
+	
+	
+	
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+		    PC_ID = #{PC_ID},
+			PC_NUMBER = #{PC_NUMBER},
+			PC_STATE = #{PC_STATE},
+            USER = #{USER},
+            USER_ID = #{USER_ID},
+            ADMISSIONCHARGE = #{ADMISSIONCHARGE},
+            EXITCHARGE = #{EXITCHARGE},
+            FLAG = #{FLAG},
+            UPDATEUSER =#{UPDATEUSER},
+		    UPDATEDATE =#{UPDATEDATE}
+		where 
+		PRO_ID = #{PRO_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PRO_ID = #{PRO_ID}  AND FLAG="0"
+	</select>
+	
+<!-- 查询品管信息部人员 -->
+	<select id="freeStaff" parameterType="pd" resultType="pd">
+		select * from oa_staff OA where  OA.DEPARTMENT_ID='90e68e9d9613428a99010ca66b4a511a' AND OA.USER_ID is not null AND OA.FLAG="0" 
+	</select>
+	
+	<!-- 通过USER_ID查询品管信息部人员 -->
+	<select id="staffuser" parameterType="pd" resultType="pd">
+		select * from oa_staff oa where  oa.DEPARTMENT_ID='90e68e9d9613428a99010ca66b4a511a' and oa.USER_ID=#{USER_ID} AND oa.USER_ID is not null AND oa.FLAG="0" 
+	</select>
+	
+	
+	<!-- 查询USER_ID不为空的员工-->
+	<select id="useridStaff" parameterType="pd" resultType="pd">
+		select *	from oa_staff S where  S.USER_ID is not null AND S.FLAG="0" 
+	</select>
+	
+	
+	<!-- 查询项目人员 -->
+	<select id="memberList" parameterType="page" resultType="pd">
+		select m.MEMBER_ID as NO,s.`NAME` as NAME,s.USER_ID as USER_ID from pro_member as m  join oa_staff as s  on m.MEMBER_ID=s.`NO`
+		where PROJECT_ID = #{PROJECT_ID}  ORDER BY m.MEMBER_ID
+	</select>
+	
+	<!-- 根据USER_ID查询名字 -->
+	<select id="getApplicant" parameterType="pd" resultType="pd">	  
+	   select  oa.NAME from project_security as pro join oa_staff as oa  on  oa.USER_ID=#{APPLICANT} where  PRO_ID = #{PRO_ID}
+	</select>
+	
+	<!-- 根据NAME查询名字 -->
+	<select id="applicantname" parameterType="pd" resultType="pd">	  
+	   select  oa.NAME from project_security as pro join oa_staff as oa  on  oa.NAME=#{APPLICANT} where  PRO_ID = #{PRO_ID}
+	</select>
+	
+	<!-- 修改APPLICANT -->
+	<update id="editApplicant" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+		    APPLICANT =#{APPLICANT}
+		where 
+		PRO_ID = #{PRO_ID}
+	</update>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+	 select
+		<include refid="Field"></include>,dic.NAME AS PROJECT_STATENAME,dics.NAME AS PC_STATENAME,oa.NAME AS PROJECT_DEPARTMENTNAME
+		from 
+		project_security p
+		
+        LEFT JOIN SYS_DICTIONARIES dic ON  p.PROJECT_STATE = dic.DICTIONARIES_ID
+        LEFT JOIN SYS_DICTIONARIES dics ON  p.PC_STATE = dics.DICTIONARIES_ID	
+        LEFT JOIN oa_department oa ON  p.PROJECT_DEPARTMENT = oa.DEPARTMENT_ID
+		where 1=1 AND  p.FLAG="0"
+		<if test="pd.projectname!= null and pd.projectname != ''">
+			and	p.PROJECT_NAME LIKE CONCAT(CONCAT('%', #{pd.projectname}),'%')
+		</if>
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			and	p.PROJECT_ID =#{pd.PROJECT_ID}
+		</if>
+		<if test="pd.PRO_ID!= null and pd.PRO_ID != ''">
+			and	p.PRO_ID =#{pd.PRO_ID}
+		</if>
+		<if test="pd.PC_LEAVEID!= null and pd.PC_LEAVEID != ''">
+			and	p.PC_LEAVEID =#{pd.PC_LEAVEID}
+		</if>
+		<!-- <if test="pd.PID != null and pd.PID != ''">
+			and	p.PROJECT_ID IS NULL
+		</if> -->
+		<if test="pd.projectmanager!= null and pd.projectmanager != ''">
+			and	p.PROJECT_MANAGER LIKE CONCAT(CONCAT('%', #{pd.projectmanager}),'%')
+		</if>
+		<if test="pd.pcnumber!= null and pd.pcnumber != ''">
+			and	PC_NUMBER LIKE CONCAT(CONCAT('%', #{pd.pcnumber}),'%')
+		</if>
+		<if test="pd.PC_STATE!= null and pd.PC_STATE != ''">
+			and PC_STATE = #{pd.PC_STATE} 
+		</if>		
+		<if test="pd.admissioncharge!= null and pd.admissioncharge != ''">
+			and	ADMISSIONCHARGE LIKE CONCAT(CONCAT('%', #{pd.admissioncharge}),'%')
+		</if>
+		<if test="pd.exitcharge!= null and pd.exitcharge != ''">
+			and	EXITCHARGE LIKE CONCAT(CONCAT('%', #{pd.exitcharge}),'%')
+		</if>
+		<if test="pd.applicant!= null and pd.applicant != ''">
+			and	APPLICANT LIKE CONCAT(CONCAT('%', #{pd.applicant}),'%')
+		</if>	
+		<if test="pd.project!= null and pd.project != ''">
+		group by p.PROJECT_ID
+		</if>
+		order by CREATIONDATE DESC,UPDATEDATE DESC
+	</select>
+			<!-- 列表 -->
+	<select id="listProsecurityleave" parameterType="page" resultType="pd">
+		SELECT * FROM project_security WHERE PROJECT_ID IS NOT NULL
+		<if test="pd.projectname!= null and pd.projectname != ''">
+			and	PROJECT_NAME LIKE CONCAT(CONCAT('%', #{pd.projectname}),'%')
+		</if>
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			and	PROJECT_ID =#{pd.PROJECT_ID}
+		</if>
+		<if test="pd.PID != null and pd.PID != ''">
+			and	PROJECT_ID IS NULL
+		</if>
+		<if test="pd.projectmanager!= null and pd.projectmanager != ''">
+			and	PROJECT_MANAGER LIKE CONCAT(CONCAT('%', #{pd.projectmanager}),'%')
+		</if>
+		<if test="pd.pcnumber!= null and pd.pcnumber != ''">
+			and	PC_NUMBER LIKE CONCAT(CONCAT('%', #{pd.pcnumber}),'%')
+		</if>
+		<if test="pd.PC_STATE!= null and pd.PC_STATE != ''">
+			and PC_STATE = #{pd.PC_STATE} 
+		</if>		
+		<if test="pd.admissioncharge!= null and pd.admissioncharge != ''">
+			and	ADMISSIONCHARGE LIKE CONCAT(CONCAT('%', #{pd.admissioncharge}),'%')
+		</if>
+		<if test="pd.exitcharge!= null and pd.exitcharge != ''">
+			and	EXITCHARGE LIKE CONCAT(CONCAT('%', #{pd.exitcharge}),'%')
+		</if>
+		<if test="pd.applicant!= null and pd.applicant != ''">
+			and	APPLICANT LIKE CONCAT(CONCAT('%', #{pd.applicant}),'%')
+		</if>		
+		 GROUP BY PROJECT_ID 
+		union SELECT * FROM project_security WHERE PROJECT_ID IS NULL 
+		<if test="pd.projectname!= null and pd.projectname != ''">
+			and	PROJECT_NAME LIKE CONCAT(CONCAT('%', #{pd.projectname}),'%')
+		</if>
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			and	PROJECT_ID =#{pd.PROJECT_ID}
+		</if>
+		<if test="pd.PID != null and pd.PID != ''">
+			and	PROJECT_ID IS NULL
+		</if>
+		<if test="pd.projectmanager!= null and pd.projectmanager != ''">
+			and	PROJECT_MANAGER LIKE CONCAT(CONCAT('%', #{pd.projectmanager}),'%')
+		</if>
+		<if test="pd.pcnumber!= null and pd.pcnumber != ''">
+			and	PC_NUMBER LIKE CONCAT(CONCAT('%', #{pd.pcnumber}),'%')
+		</if>
+		<if test="pd.PC_STATE!= null and pd.PC_STATE != ''">
+			and PC_STATE = #{pd.PC_STATE} 
+		</if>		
+		<if test="pd.admissioncharge!= null and pd.admissioncharge != ''">
+			and	ADMISSIONCHARGE LIKE CONCAT(CONCAT('%', #{pd.admissioncharge}),'%')
+		</if>
+		<if test="pd.exitcharge!= null and pd.exitcharge != ''">
+			and	EXITCHARGE LIKE CONCAT(CONCAT('%', #{pd.exitcharge}),'%')
+		</if>
+		<if test="pd.applicant!= null and pd.applicant != ''">
+			and	APPLICANT LIKE CONCAT(CONCAT('%', #{pd.applicant}),'%')
+		</if>
+		 GROUP BY PC_LEAVEID		
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="findbypro" parameterType="pd" resultType="pd">
+		select
+		COUNT(*) as conut
+		from 
+		<include refid="tableName"></include>
+		where 1=1
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			and	PROJECT_ID =#{PROJECT_ID}
+		</if>
+		<if test="pd.PID != null and pd.PID != ''">
+			and	PROJECT_ID IS NULL
+		</if>
+		
+	</select>
+	
+		<!-- 列表(全部) -->
+	<select id="findbyPCstate" parameterType="pd" resultType="pd">
+		select d.`NAME` from project_security as p join sys_dictionaries as d on p.PC_STATE=d.DICTIONARIES_ID
+              WHERE d.`NAME`!='已入场' and d.`NAME`!='退场准备中' and d.`NAME`!='已退场'
+	</select>
+	
+	<!--批量删除  -->
+	<update id="updateAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			FLAG = #{FLAG},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		PRO_ID=#{PRO_ID}
+	</update>
+	
+	<!-- 通过ID获取退场负责人 -->
+	<select id="exitid" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PRO_ID = #{PRO_ID}  AND FLAG="0"
+	</select>
+	
+	<!-- 批量修改 -->
+	<update id="editAll" parameterType="pd">
+		update project_security set ADMISSIONCHARGE=#{ADMISSIONCHARGE},EXITCHARGE=#{EXITCHARGE}
+		WHERE 
+			PRO_ID=#{PRO_ID}
+		<!-- <foreach item="item" index="index" collection="pd" open="(" separator="," close=")">
+                 #{item.NO}
+		</foreach>  -->
+	</update>
+	
+	<!-- 批量修改入场负责人 -->
+	<update id="admissioneditAll" parameterType="pd">
+		update project_security set ADMISSIONCHARGE=#{ADMISSIONCHARGE}
+		WHERE 
+			PRO_ID=#{PRO_ID}
+		<!-- <foreach item="item" index="index" collection="pd" open="(" separator="," close=")">
+                 #{item.NO}
+		</foreach>  -->
+	</update>
+	
+	<!-- 批量修改退场负责人 -->
+	<update id="exitditAll" parameterType="pd">
+		update project_security set EXITCHARGE=#{EXITCHARGE}
+		WHERE 
+			PRO_ID=#{PRO_ID}
+		<!-- <foreach item="item" index="index" collection="pd" open="(" separator="," close=")">
+                 #{item.NO}
+		</foreach>  -->
+	</update>
+	
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			PRO_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	
+
+	<!-- 通过pcleaveid获取数据 -->
+	<select id="findByPcleaveid" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+		FLAG = 0 AND PC_LEAVEID = #{PC_LEAVEID}
+	</select>
+	
+	<!-- 通过pcleaveitemid获取数据 -->
+	<select id="findByPcleaveitemid" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+		FLAG = 0 AND PC_LEAVE_ITEMID = #{PC_LEAVE_ITEMID}
+	</select>
+	
+	<update id="updatePcStateByPcleaveId" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		PC_STATE = #{PC_STATE},
+		UPDATEUSER = #{UPDATEUSER},
+		UPDATEDATE = #{UPDATEDATE}
+		where
+		PC_LEAVEID = #{PC_LEAVEID}
+	</update>
+
+	<update id="updateItemidById" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		PC_LEAVE_ITEMID = #{PC_LEAVE_ITEMID},
+		UPDATEUSER = #{UPDATEUSER},
+		UPDATEDATE = #{UPDATEDATE}
+		where
+		PRO_ID = #{PRO_ID}
+	</update>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>

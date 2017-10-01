@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ProjectMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		sys_project
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		PROJECT_ID,	
+		PROJECT_PID,	
+		PROJECT_NAME,	
+		PROJECT_PRICE,					
+		PROJECT_STATE,
+		PROJECT_ML,			
+		PROJECT_MLL,	
+		PROJECT_HAVE,
+		PROJECT_HAVENOT,		
+		PROJECT_MANAGER,	
+		PROJECT_DIRECTOR,	
+		PROJECT_COST,	
+		PROJECT_ACTUAL,	
+		PROJECT_MONEY,	
+		PROJECT_NUMBER,	
+		PROJECT_BTIME,	
+		PROJECT_ETIME,		
+		ROOM_NAME,
+		DEPARTMENT_ID,
+		DEPARTMENT_NAMES,
+		FLAG,
+		CREATIONUSER,
+		CREATIONDATE,
+		UPDATEUSER,
+		UPDATEDATE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{PROJECT_ID},	
+		#{PROJECT_PID},	
+		#{PROJECT_NAME},	
+		#{PROJECT_PRICE},			
+		#{PROJECT_STATE},
+		#{PROJECT_ML},	
+		#{PROJECT_MLL},
+		#{PROJECT_HAVE},
+		#{PROJECT_HAVENOT},	
+		#{PROJECT_MANAGER},	
+		#{PROJECT_DIRECTOR},	
+		#{PROJECT_COST},	
+		#{PROJECT_ACTUAL},	
+		#{PROJECT_MONEY},	
+		#{PROJECT_NUMBER},	
+		#{PROJECT_BTIME},	
+		#{PROJECT_ETIME},			
+		#{ROOM_NAME},
+		#{DEPARTMENT_ID},
+		#{DEPARTMENT_NAMES},
+		#{FLAG},
+		#{CREATIONUSER},
+		#{CREATIONDATE},
+		#{UPDATEUSER},
+		#{UPDATEDATE}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include> 
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	<!-- 新增项目经理和项目总监-->	
+	<insert id="saveDouble" parameterType="java.util.List">
+    insert into pro_member (ID,MEMBER_ID,MEMBER_ROLE,MEMBER_BTIME,MEMBER_ETIME,MEMBER_COST,
+		MEMBER_ACTUL,PROJECT_ID,CREATIONUSER,CREATIONDATE,FLAG) values
+    <foreach collection="list" item="item" index="index" separator=",">
+    ((SELECT REPLACE(UUID(), '-', '') AS id),#{item.MEMBER_ID},#{item.MEMBER_ROLE},#{item.MEMBER_BTIME},
+    #{item.MEMBER_ETIME},#{item.MEMBER_COST},#{item.MEMBER_ACTUL},#{item.PROJECT_ID},#{item.CREATIONUSER},
+    #{item.CREATIONDATE},#{item.FLAG})
+    </foreach>    
+	</insert>
+	
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			PROJECT_ID = #{PROJECT_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+	<!-- 		PROJECT_ID = #{PROJECT_ID}, -->
+<!-- 			PROJECT_PID = #{PROJECT_PID}, -->
+			PROJECT_NAME = #{PROJECT_NAME},
+			PROJECT_PRICE = #{PROJECT_PRICE},
+			PROJECT_STATE = #{PROJECT_STATE},
+			DEPARTMENT_ID = #{DEPARTMENT_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES},
+			<!-- PROJECT_ML =#{PROJECT_ML},
+			PROJECT_MLL =#{PROJECT_MLL},
+			PROJECT_MANAGER = #{PROJECT_MANAGER},
+			PROJECT_DIRECTOR = #{PROJECT_DIRECTOR},
+			PROJECT_COST = #{PROJECT_COST},
+			PROJECT_ACTUAL = #{PROJECT_ACTUAL},
+			PROJECT_MONEY = #{PROJECT_MONEY},
+			PROJECT_NUMBER = #{PROJECT_NUMBER}, -->
+			PROJECT_BTIME = #{PROJECT_BTIME},
+			PROJECT_ETIME = #{PROJECT_ETIME},				
+			ROOM_NAME = #{ROOM_NAME},
+			<!-- DEPARTMENT_ID = #{DEPARTMENT_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES}, -->
+			FLAG = #{FLAG},
+			UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		PROJECT_ID = #{PROJECT_ID}
+	</update>
+	<!-- 修改 -->
+	<update id="editA" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 			
+			 PROJECT_ML =#{PROJECT_ML},
+			PROJECT_MLL =#{PROJECT_MLL},
+			PROJECT_MANAGER = #{PROJECT_MANAGER},
+			PROJECT_DIRECTOR = #{PROJECT_DIRECTOR},
+			PROJECT_COST = #{PROJECT_COST},
+			PROJECT_ACTUAL = #{PROJECT_ACTUAL},
+			PROJECT_MONEY = #{PROJECT_MONEY},
+			PROJECT_NUMBER = #{PROJECT_NUMBER},	
+			PROJECT_HAVE = #{PROJECT_HAVE},
+			PROJECT_HAVENOT = #{PROJECT_HAVENOT},		
+			DEPARTMENT_ID = #{DEPARTMENT_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES}			
+		where 
+		PROJECT_ID = #{PROJECT_ID}
+	</update>
+	<!-- 修改 -->
+	<update id="editE" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 	
+			PROJECT_NAME = #{PROJECT_NAME},
+			PROJECT_PRICE = #{PROJECT_PRICE},
+			PROJECT_STATE = #{PROJECT_STATE},
+			PROJECT_ML =#{PROJECT_ML},
+			PROJECT_MLL =#{PROJECT_MLL},
+			PROJECT_MANAGER = #{PROJECT_MANAGER},
+			PROJECT_DIRECTOR = #{PROJECT_DIRECTOR},
+			PROJECT_COST = #{PROJECT_COST},
+			PROJECT_ACTUAL = #{PROJECT_ACTUAL},
+			PROJECT_MONEY = #{PROJECT_MONEY},
+			PROJECT_NUMBER = #{PROJECT_NUMBER},
+			PROJECT_BTIME = #{PROJECT_BTIME},
+			PROJECT_ETIME = #{PROJECT_ETIME},				
+			ROOM_NAME = #{ROOM_NAME},
+			DEPARTMENT_ID = #{DEPARTMENT_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES},
+			FLAG = #{FLAG},
+			UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		PROJECT_PID = #{PROJECT_PID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PROJECT_ID = #{PROJECT_ID} AND FLAG="0" 
+	</select>
+	
+	<!-- 列表-->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>,dic.NAME AS PROJECT_STATENAME
+		from 
+		SYS_PROJECT as p
+		LEFT JOIN SYS_DICTIONARIES dic ON  p.PROJECT_STATE = dic.DICTIONARIES_ID	
+		where 1=1
+		<if test="pd.pName!= null and pd.pName != ''">
+			and	PROJECT_NAME LIKE CONCAT(CONCAT('%', #{pd.pName}),'%')
+		</if>			
+		<if test="pd.pManager!= null and pd.pManager != ''">
+			and	PROJECT_MANAGER LIKE CONCAT(CONCAT('%', #{pd.pManager}),'%')
+		</if>	
+		<if test="pd.pDirector!= null and pd.pDirector != ''">
+			and	PROJECT_DIRECTOR LIKE CONCAT(CONCAT('%', #{pd.pDirector}),'%')
+		</if>	
+		<if test="pd.pMember!= null and pd.pMember != ''">
+			and	p.PROJECT_ID = ANY(SELECT m.PROJECT_ID from pro_member m WHERE m.MEMBER_ID = ANY(
+			SELECT s.no FROM oa_staff s WHERE s.NAME LIKE CONCAT(CONCAT('%', #{pd.pMember}),'%')
+			and m.flag = "0"))  				 
+		</if>		
+		<if test="pd.lastStart!=null and pd.lastStart!=''">
+			and PROJECT_BTIME &gt;= #{pd.lastStart} 
+		</if>
+		<if test="pd.lastEnd!=null and pd.lastEnd!=''">    
+			and PROJECT_ETIME &lt;= #{pd.lastEnd} 
+		</if>		
+		<if test="pd.lPrice!=null and pd.lPrice!=''">
+			and PROJECT_PRICE &gt;= #{pd.lPrice} 
+		</if>
+		<if test="pd.hPrice!=null and pd.hPrice!=''">    
+			and PROJECT_PRICE &lt;= #{pd.hPrice} 
+		</if>	
+		<if test="pd.lmll!=null and pd.lmll!=''">
+			and PROJECT_MLL &gt;= #{pd.lmll} 
+		</if>
+		<if test="pd.hmll!=null and pd.hmll!=''">    
+			and PROJECT_MLL &lt;= #{pd.hmll} 
+		</if>	
+		<if test="pd.PROJECT_STATE!= null and pd.PROJECT_STATE != ''">
+			and PROJECT_STATE = #{pd.PROJECT_STATE} 
+		</if>
+		<if test="pd.ROOM_NAME!= null and pd.ROOM_NAME != ''">
+			and ROOM_NAME LIKE CONCAT(CONCAT('%',#{pd.ROOM_NAME}),'%') 
+		</if>
+		<if test="pd.DEPARTMENT_ID!= null and pd.DEPARTMENT_ID != ''">
+			and	DEPARTMENT_ID in ${pd.item} 
+		</if>
+		AND p.FLAG = "0" order by PROJECT_PID DESC
+<!-- 		<if test="pd.PROJECT_BUILDING!= null and pd.PROJECT_BUILDING != '' ">
+			and PROJECT_BUILDING = #{pd.PROJECT_BUILDING} 
+		</if>
+		<if test="pd.PROJECT_FLOOR!= null and pd.PROJECT_FLOOR!= '' ">
+			and PROJECT_FLOOR = #{pd.PROJECT_FLOOR} 
+		</if>
+		<if test="pd.PROJECT_ROOMS!= null and pd.PROJECT_ROOMS != '' ">
+			and PROJECT_ROOMS = #{pd.PROJECT_ROOMS} 
+		</if> -->
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage1" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>,dic.NAME AS PROJECT_STATENAME		
+		from 
+		SYS_PROJECT as p
+		LEFT JOIN SYS_DICTIONARIES dic ON p.PROJECT_STATE = dic.DICTIONARIES_ID
+		where 1=1 and FLAG="0"
+		<if test="pd.pName!= null and pd.pName != ''">
+		and	PROJECT_NAME LIKE CONCAT(CONCAT('%', #{pd.pName}),'%')
+		</if>		
+		<!-- <if test="pd.pPrice!= null and pd.pPrice != ''">
+		and	PROJECT_PRICE LIKE CONCAT(CONCAT('%', #{pd.pPrice}),'%')
+		</if> -->		
+		<if test="pd.pManager!= null and pd.pManager != ''">
+		and	PROJECT_MANAGER LIKE CONCAT(CONCAT('%', #{pd.pManager}),'%')
+		</if>				
+		<if test="pd.lastStart!=null and pd.lastStart!=''">
+			and PROJECT_BTIME &gt;= #{pd.lastStart} 
+		</if>
+		<if test="pd.lastEnd!=null and pd.lastEnd!=''">    
+			and PROJECT_ETIME &lt;= #{pd.lastEnd} 
+		</if>
+		
+		<if test="pd.lPrice!=null and pd.lPrice!=''">
+			and PROJECT_PRICE &gt;= #{pd.lPrice} 
+		</if>
+		<if test="pd.hPrice!=null and pd.hPrice!=''">    
+			and PROJECT_PRICE &lt;= #{pd.hPrice} 
+		</if>			
+		<if test="pd.PROJECT_STATE!= null and pd.PROJECT_STATE != ''">
+			and PROJECT_STATE = #{pd.PROJECT_STATE} 
+		</if>
+		
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>WHERE FLAG="0" 
+	</select>
+
+	<!-- 查询项目经理 -->
+	 <select id="queryManager" parameterType="pd" resultType="pd">
+		select
+         oa.NAME as manager from pro_member as m
+         LEFT JOIN SYS_DICTIONARIES dic ON m.MEMBER_ROLE = dic.DICTIONARIES_ID 
+         LEFT JOIN OA_STAFF oa ON m.MEMBER_ID = oa.NO
+         where m.PROJECT_ID=#{PROJECT_ID} and dic.DICTIONARIES_ID='b2b170ee435e4ce58b3a7f87e284a81d' AND oa.FLAG="0" and m.FLAG="0"
+	</select> 
+	
+	<!-- 查询项目总监 -->
+	 <select id="queryDirector" parameterType="pd" resultType="pd">
+		select
+         oa.NAME as director from pro_member as m
+         LEFT JOIN SYS_DICTIONARIES dic ON m.MEMBER_ROLE = dic.DICTIONARIES_ID 
+         LEFT JOIN OA_STAFF oa ON m.MEMBER_ID = oa.NO
+         where m.PROJECT_ID=#{PROJECT_ID} and dic.DICTIONARIES_ID='79a86ec3fd8540588aa17961418a5662' and oa.FLAG="0" and m.FLAG="0";
+	</select> 
+	
+	<!-- 人员数 -->
+	<select id="getCount" parameterType="pd" resultType="pd">
+		SELECT COUNT(*) AS count  FROM PRO_MEMBER AS p 
+		WHERE
+		 p.PROJECT_ID = #{PROJECT_ID} AND
+		 p.MEMBER_BTIME &lt;=current_date AND p.MEMBER_ETIME &gt;=current_date and p.FLAG="0"	
+	</select>
+    <!-- 查询费用 -->
+	<select id="getMoney" parameterType="pd" resultType="pd">
+	SELECT ifnull(sum(C.COST_MONEY),0) AS money FROM PROJECT_COST AS C
+	 WHERE
+		C.PROJECT_ID=#{PROJECT_ID} and C.FLAG="0"
+	</select>
+	 <!-- 查询已收取金额 -->
+	<select id="getReceiving" parameterType="pd" resultType="pd">
+	SELECT ifnull(sum(r.MONEY),0) AS receiving FROM sys_projectmoney AS r
+	 WHERE
+		r.PROJECT_PID=#{PROJECT_PID}
+	</select>
+	<!-- 查询实际成本 -->
+	<select id="getCost" parameterType="pd" resultType="pd">
+ select
+(
+ SELECT ifnull(sum(a.tianshu*(a.yuexin*0.05)*2),0) from
+  (SELECT IFNULL(salary,0) as 'yuexin',
+					(
+						select count(t.CALENDAR_DATE) from tb_calendar t where t.DATE_STATUS = 1 
+						and t.CALENDAR_DATE &gt;= p.MEMBER_BTIME and t.CALENDAR_DATE &lt;= p.MEMBER_ETIME 
+					) as 'tianshu'
+		from 
+		pro_member p, oa_salary os
+		where  p.PROJECT_ID  = #{PROJECT_ID} and os.no=p.MEMBER_ID and p.FLAG="0"
+ ) as a 
+)  as 'cost'
+from sys_project s where s.PROJECT_ID = #{PROJECT_ID} 
+
+
+
+	</select>
+	
+	
+ <!-- 查询级别成本 -->
+	<select id="getActual" parameterType="pd" resultType="pd">
+select
+(
+ SELECT ifnull(sum(a.jibie * a.tianshu),0) from
+  (SELECT p.MEMBER_ACTUL as 'jibie',
+					(
+						select count(t.CALENDAR_DATE) from tb_calendar t where t.DATE_STATUS = 1 and t.CALENDAR_DATE &gt;= p.MEMBER_BTIME and t.CALENDAR_DATE &lt;= p.MEMBER_ETIME 
+					) as 'tianshu'
+		from 
+		pro_member p
+		where  p.PROJECT_ID  = #{PROJECT_ID} and p.FLAG="0"
+ ) as a 
+)  as 'chengben'
+from sys_project s where s.PROJECT_ID = #{PROJECT_ID}
+
+
+
+	</select>
+	
+	<!-- 批量删除 -->
+	<update id="editProjectAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			FLAG = #{FLAG},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		PROJECT_ID = #{PROJECT_ID}
+	</update>
+
+<!-- 列表(全部) -->
+	<select id="memberList" parameterType="page" resultType="pd">
+		select * from pro_member 
+		where PROJECT_ID = #{PROJECT_ID} 
+	</select>
+	
+
+	<!-- 通过PID获取数据 -->
+	<select id="findByPId" parameterType="pd" resultType="pd">
+		SELECT 
+		<include refid="Field"></include>
+		FROM 
+		<include refid="tableName"></include>
+		WHERE 
+			PROJECT_PID = #{PROJECT_PID} and FLAG = "0"
+	</select>
+	<select id="findByRoom" parameterType="pd" resultType="pd">
+		SELECT	PROJECT_ETIME	FROM  SYS_PROJECT	WHERE PROJECT_ROOMS = #{PROJECT_ROOMS}
+	</select>
+	
+	<select id="getName" parameterType="pd" resultType="pd">
+		SELECT NAME	FROM  SYS_APP_USER	WHERE USERNAME = #{username}
+	</select>
+	<!-- 获取上次的PID -->
+	<select id="getPID" parameterType="pd" resultType="pd">
+		SELECT PROJECT_PID FROM sys_project WHERE PROJECT_PID LIKE 'p%'  ORDER BY PROJECT_PID DESC
+	</select>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>

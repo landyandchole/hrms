@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PcLeaveMapper">
+<!--表名 -->
+	<sql id="tableName">
+		pc_leave
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,	
+		USERNAME,	
+		NAME,	
+		REMARK,
+		DATE,	
+		STATE,
+		PCNUMBER,	
+		PROCESSINSTANCEID,
+		TASKID,
+		PCSTATE,
+		PROJECT_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},	
+		#{USERNAME},	
+		#{NAME},	
+		#{REMARK},
+		#{DATE},	
+		#{STATE},	
+		#{PCNUMBER},
+		#{PROCESSINSTANCEID},	
+		#{TASKID},
+		#{PCSTATE},
+		#{PROJECT_ID}			
+	</sql>
+	
+	<!-- 新增（2） -->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+			
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<update id="updateState" parameterType="pd">
+	update 
+	<include refid="tableName"/>
+	set
+	   STATE = #{STATE},
+	   PCSTATE = #{PCSTATE},
+	   PROCESSINSTANCEID = #{PROCESSINSTANCEID},
+	   TASKID = #{TASKID}
+	   where ID = #{ID} 
+	</update>
+	
+	<update id="updateIsReapply" parameterType="pd">
+	update 
+	<include refid="tableName"/>
+	set
+	   IS_REAPPLY = #{IS_REAPPLY}
+	   where ID = #{ID} 
+	</update>
+	
+	<update id="updateStateName" parameterType="pd">
+	update 
+	<include refid="tableName"/>
+	set
+	   USERNAME=#{USERNAME},
+	   STATE = #{STATE},
+	   PCSTATE = #{PCSTATE},
+	   PROCESSINSTANCEID = #{PROCESSINSTANCEID},
+	   TASKID = #{TASKID}
+	   where ID = #{ID} 
+	</update>
+	
+		<!-- 列表(全部) -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where STATE LIKE CONCAT(CONCAT('%',#{pd.STATENAME}),'%')
+		<if test="pd.USERNAME!= null and pd.USERNAME != ''">
+			and  USERNAME=#{pd.USERNAME}
+		</if>
+	    <if test="pd.ROOM_NAME!= null and pd.ROOM_NAME!= ''">
+			and ROOM_NAME = #{pd.ROOM_NAME} 
+		</if>
+		<if test="pd.NAME!= null and pd.NAME != ''">
+			and NAME = #{pd.NAME} 
+		</if>
+		<if test="pd.STATE!= null and pd.STATE != ''">
+			and STATE = #{pd.STATE} 
+		</if>
+<!-- 		<if test="pd.PCSTATE!= null and pd.PCSTATE != ''">
+			and (PCSTATE &lt; #{pd.PCSTATE}) 
+		</if>  -->
+		<!-- <if test="pd.TCSTATE!= null and pd.TCSTATE != ''">
+			and (PCSTATE &gt; #{pd.TCSTATE} and PCSTATE!='5')
+		</if>  -->
+		order by DATE DESC
+		
+	</select>
+	
+			<!-- 列表(全部) -->
+	<select id="datalistPagetwo" parameterType="page" resultType="pd">
+		SELECT pc.* from pc_leave as pc  JOIN project_security as p on pc.ID=p.PC_LEAVEID 
+		JOIN SYS_DICTIONARIES dic ON  p.PC_STATE = dic.DICTIONARIES_ID where dic.`NAME`='已入场'
+	    <if test="pd.USERNAME!= null and pd.USERNAME != ''">
+			and  p.USER_ID=#{pd.USERNAME} 
+		</if> 
+	    <if test="pd.ROOM_NAME!= null and pd.ROOM_NAME!= ''">
+			and pc.ROOM_NAME = #{pd.ROOM_NAME} 
+		</if>
+		<if test="pd.NAME!= null and pd.NAME != ''">
+			and pc.NAME = #{pd.NAME} 
+		</if>
+		<if test="pd.STATE!= null and pd.STATE != ''">
+			and pc.STATE = #{pd.STATE} 
+		</if>
+		<if test="pd.PCSTATE!= null and pd.PCSTATE != ''">
+			and (PCSTATE &gt; #{pd.PCSTATE} or PCSTATE='1')
+		</if> 
+		AND P.FLAG="0"
+		order by pc.DATE DESC
+	
+		
+		
+	</select>
+	
+	<!--根据pc_leave id找pc_leaveItem子级信息  -->
+	<select id="leaveItemlist" parameterType="pd" resultType="pd">
+	SELECT pc.*,f.FITTINGS_NAME as FITTINGS_NAME FROM pc_leave_item as pc LEFT JOIN fittings_list as f ON pc.ACCESSORIES=f.FITTINGS_ID
+ WHERE PC_LEAVEID=#{ID} AND PCSTATE IS NULL
+	</select>
+	<!-- 根据流程ID查找pc_leave(2) -->
+	<select id="getLeaveByTaskId" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+          from 
+         <include refid="tableName"></include>   
+		where PROCESSINSTANCEID=#{PROCESSINSTANCEID}
+	</select>
+	
+	<select id = "pca" parameterType="pd" resultType="pd">
+		select 
+			sys.NAME,
+			pc.DATE,
+			pc.STATE,
+			pc.REMARK
+        from 
+	        sys_app_user sys, 
+	        pc_leave pc 
+		where 
+			1=1 and
+			pc.USERNAME = sys.USERNAME
+			<if test="PROCESSINSTANCEID!=null and PROCESSINSTANCEID != ''">
+			 and pc.PROCESSINSTANCEID=#{PROCESSINSTANCEID}
+			</if>
+			<if test="ID!=null and ID != ''">
+			 and pc.ID=#{ID}
+			</if>
+	</select>
+	
+	<select id = "staname" parameterType="pd" resultType="pd">
+		select 
+			sta.NAME
+        from 
+	        sys_app_user sys, 
+	        oa_staff sta 
+		where 
+			sta.USER_ID = sys.USERNAME
+			and
+			sys.USERNAME=#{USERNAME} 
+			and
+			sta.FLAG="0"
+	</select>
+	
+	<select id = "pca2" parameterType="page" resultType="pd">
+		SELECT
+			oa.NO,
+			sys.NAME,
+			pc.NAME,
+			pc.DATE,
+			pci.ROOM_NAME,
+			pci.PCNUMBER,
+			pci.RAM,
+			pci.HDISK,
+			pci.TYPE,
+			pci.ACCESSORIES,
+			pci.PURPOSE,
+			f.FITTINGS_NAME
+		FROM
+			sys_app_user sys,
+			oa_staff oa,
+			pc_leave pc,
+			pc_leave_item pci
+			LEFT JOIN fittings_list as f on pci.ACCESSORIES=f.FITTINGS_ID
+		WHERE 
+			oa.USER_ID = sys.USERNAME
+			AND
+			pc.USERNAME = sys.USERNAME
+			AND
+			pc.PROCESSINSTANCEID=#{PROCESSINSTANCEID}
+			AND
+			pci.PC_LEAVEID = pc.ID
+			AND oa.FLAG="0"
+	</select>
+	
+	<select id="getnextuser" parameterType="pd" resultType="pd">
+		SELECT 		
+			user_id 
+		FROM 
+			oa_staff
+	    where
+	        name=(SELECT
+	         			P.PROJECT_MANAGER
+	         			from 
+		         			sys_app_user as u,
+		         			oa_staff as s,
+		         			sys_project as p,
+		         			pro_member as m 
+	         			WHERE 
+	         				u.USERNAME = s.USER_ID and 
+	         				s.NO= m.member_id AND 
+	         				m.project_id = p.project_id 
+	         				AND u.USER_ID = #{user_id}
+	         				AND p.project_id=#{name})
+
+	</select>
+	
+	<select id="getnextbz" parameterType="pd" resultType="pd">
+		SELECT de.PARENT_ID as PARENT_ID,de.DEPARTMENT_ID as DEPARTMENT_ID from oa_department as de where de.DEPARTMENT_ID 
+	    in (SELECT f.DEPARTMENT_ID from oa_staff as f where 
+        f.USER_ID = #{USERNAME} AND f.FLAG="0" )      
+	</select>
+	
+	<select id="getnextpd" parameterType="pd" resultType="pd">
+		SELECT USER_ID FROM oa_staff WHERE DEPARTMENT_NAMES LIKE '%品管%'
+	</select>
+	
+	
+	<select id="getnextbzbyid" parameterType="pd" resultType="pd">
+	  select s.USER_ID as user_id from oa_staff as s join sys_app_user as a on s.USER_ID=a.USERNAME join sys_role as r on a.ROLE_ID=r.ROLE_ID 
+      where s.DEPARTMENT_ID=#{DEPARTMENT_ID} and 
+      r.ROLE_NAME='部长'
+      AND s.FLAG="0"
+	</select>
+	
+	<select id="getDEPARTMENT_ID" parameterType="pd" resultType="pd">
+	 SELECT de.PARENT_ID as PARENT_ID,de.DEPARTMENT_ID as DEPARTMENT_ID from oa_department as de where de.DEPARTMENT_ID 
+	 in (SELECT f.DEPARTMENT_ID from oa_staff as f where f.USER_ID in
+     (SELECT USERNAME from sys_app_user where USER_ID=#{user_id}))
+	</select>
+	
+	<select id="getPARENT_ID" parameterType="pd" resultType="pd">
+	 SELECT de.PARENT_ID as PARENT_ID,de.DEPARTMENT_ID as DEPARTMENT_ID from oa_department as de where de.DEPARTMENT_ID= #{PARENT_ID}
+	</select>
+	
+	<select id = "getPcLevelByStatusAndUser" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+          from 
+         <include refid="tableName"></include>   
+		where USERNAME = #{USERNAME} and
+		(STATE = #{STATE} or STATE = #{STATE2})
+	</select>
+	
+	<select id = "getCountByStatusAndUser" parameterType="pd" resultType="pd">
+		select 
+		count(*) total
+          from 
+         <include refid="tableName"></include>   
+		where USERNAME = #{USERNAME} and
+		(STATE = #{STATE} or STATE = #{STATE2})
+	</select>
+	
+	<select id = "getUserPorject" parameterType="pd" resultType="pd">
+		select
+		 pro.project_name 
+		 from 
+		 	sys_project as pro,
+		 	pro_member as pm,
+		 	oa_staff as st 
+		 	where 
+		 		st.NO = pm.member_id and 
+		 		pm.project_id = pro.project_id and 
+		 		st.user_id =#{pro} and pro.PROJECT_ID=#{name}
+		 		AND pro.FLAG="0"
+		 		AND PM.FLAG="0"
+                AND ST.FLAG="0"
+	</select>
+	
+	<select id = "getInfoSafes" parameterType="pd" resultType="pd">
+		SELECT * FROM OA_STAFF WHERE USER_ID=#{USER_ID} AND DEPARTMENT_NAMES LIKE '%品管%'
+	</select>
+	
+	<select id = "getProjectByname" parameterType="pd" resultType="pd">
+		SELECT
+		  PRO.PROJECT_ID AS PROJECT_ID,PRO.PROJECT_PID AS PROJECT_PID,PRO.PROJECT_NAME AS PROJECT_NAME
+		 FROM 
+		 	SYS_PROJECT AS PRO,
+		 	PRO_MEMBER AS PM,
+		 	OA_STAFF AS ST 
+		 	WHERE 
+		 		ST.NO = PM.MEMBER_ID AND 
+		 		PM.PROJECT_ID = PRO.PROJECT_ID AND 
+		 		ST.USER_ID =#{pro}
+		 		AND PRO.FLAG="0"
+		 		AND PM.FLAG="0"
+               AND ST.FLAG="0"
+	</select>
+	<select id = "getUser" parameterType="pd" resultType="pd">
+		select
+		 oa.name,oa.user_id,pc.PCSTATE,pc.ID,pc.TASKID,pc.PCNUMBER 
+		 	from 
+				 oa_staff as oa,
+				 pc_leave as pc 
+			 where 
+			 	 oa.user_id = pc.username 
+			 	 and pc.PROCESSINSTANCEID=#{PROCESSINSTANCEID}
+			 	 AND oa.FLAG="0"
+	</select>
+	<!-- 根据ID查找（2） -->
+    <select id = "findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+          from 
+         <include refid="tableName"></include>   
+		where ID = #{ID}
+	</select>
+	
+	  <select id = "findByps" parameterType="String" resultType="pd">
+		select 
+		<include refid="Field"></include>
+          from 
+         <include refid="tableName"></include>   
+		where ID = #{ID} and STATE='审核通过' 
+	</select>
+	
+	<update id="updateStateOnly" parameterType="pd">
+	update 
+	<include refid="tableName"/>
+	set
+	   STATE = #{BACKAPPLY_STATE}
+	   where ID = #{BACKAPPLY_ID} 
+	</update>
+	
+	<update id="update" parameterType="pd">
+		update 
+		<include refid="tableName"/>
+		set
+		   USERNAME = #{USERNAME},
+		   BUILDING = #{BUILDING},
+		   FLOOR = #{FLOOR},
+		   ROOM = #{ROOM},
+		   REMARK = #{REMARK},
+		   DATE = #{DATE},
+		   STATE = #{STATE},
+		   PROCESSINSTANCEID = #{PROCESSINSTANCEID},
+		   TASKID = #{TASKID},
+		   ROOM_NAME = #{ROOM_NAME},
+		   PCNUMBER = #{PCNUMBER}
+		   where ID = #{ID} 
+	</update>
+	
+	<select id="select_ru_NAME_" parameterType="page" resultType="pd">
+		select
+			NAME_
+		from
+			act_ru_task
+		where
+			EXECUTION_ID_ = #{pd.PROCESSINSTANCEID}
+	</select>
+	<select id="select_hi_NAME_" parameterType="page" resultType="pd">
+		select
+			tab1.ID_,
+			tab1.NAME_,
+			tab1.END_TIME_,
+			tab1	.SYS_NAME
+		from
+			(select
+				act.ID_,
+				act.EXECUTION_ID_,
+				act.NAME_,
+				act.END_TIME_,
+				sys.NAME as SYS_NAME
+			from
+				act_hi_taskinst act
+			left join
+				sys_app_user sys
+			on 			
+				act.ASSIGNEE_ = sys.USERNAME
+				order by act.ID_ DESC)as tab1
+		where
+			tab1.EXECUTION_ID_ = #{pd.PROCESSINSTANCEID} 
+			order by tab1.ID_ DESC
+
+			
+	</select>
+	<select id="select_hi_MESSAGE_" parameterType="page" resultType="pd">
+		select
+			MESSAGE_
+		from
+			act_hi_comment
+		where
+			PROC_INST_ID_ = #{pd.PROCESSINSTANCEID}
+			order by ID_ DESC
+	</select>
+	<select id="getByProcessinstanceId" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+          from 
+         <include refid="tableName"></include>   
+		where PROCESSINSTANCEID=#{PROCESSINSTANCEID}
+	</select>
+	
+	<select id="getByTaskId" parameterType="pd" resultType="pd">
+		select 
+		NAME
+          from 
+         <include refid="tableName"></include>   
+		where TASKID=#{taskId}
+	</select>
+	<select id="findAllProcessInstanceId"  resultType="string">
+		select 
+		PROCESSINSTANCEID
+          from 
+         <include refid="tableName"></include>
+         where  PROCESSINSTANCEID!='' 
+	</select>
+	
+    <select id="findByProjectIdAndRoleName" parameterType="pd" resultType="pd">
+    	select 
+		staff.USER_ID
+		from pro_member pm,sys_dictionaries dics,oa_staff staff
+		where 
+        pm.MEMBER_ID = staff.NO
+		and pm.MEMBER_ROLE = dics.DICTIONARIES_ID 
+		and dics.`NAME`=#{NAME}
+		and pm.PROJECT_ID=#{PROJECT_ID}
+		and pm.FLAG=0
+	</select>
+	
+</mapper>

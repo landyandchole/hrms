@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DictionariesMapper">
+	
+	<resultMap type="Dictionaries" id="dictResultMap">
+		<id column="DICTIONARIES_ID" property="DICTIONARIES_ID"/>
+		<result column="NAME" property="NAME"/>
+		<result column="PARENT_ID" property="PARENT_ID"/>
+	</resultMap>
+	
+	<!--表名 -->
+	<sql id="tableName">
+		SYS_DICTIONARIES
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		NAME,	
+		NAME_EN,	
+		BIANMA,	
+		ORDER_BY,	
+		PARENT_ID,	
+		BZ,	
+		TBSNAME,	
+		DICTIONARIES_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{NAME},	
+		#{NAME_EN},	
+		#{BIANMA},	
+		#{ORDER_BY},	
+		#{PARENT_ID},	
+		#{BZ},	
+		#{TBSNAME},	
+		#{DICTIONARIES_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			DICTIONARIES_ID = #{DICTIONARIES_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			NAME = #{NAME},
+			NAME_EN = #{NAME_EN},
+			ORDER_BY = #{ORDER_BY},
+			BZ = #{BZ},
+			TBSNAME = #{TBSNAME},
+			DICTIONARIES_ID = DICTIONARIES_ID
+		where 
+			DICTIONARIES_ID = #{DICTIONARIES_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			DICTIONARIES_ID = #{DICTIONARIES_ID}
+	</select>
+	
+	<!-- 通过编码获取数据 -->
+	<select id="findByBianma" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			BIANMA = #{BIANMA}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where
+			1=1
+		<if test="pd.DICTIONARIES_ID!= null and pd.DICTIONARIES_ID != ''"><!-- 检索 -->
+		and PARENT_ID = #{pd.DICTIONARIES_ID}
+		</if>
+		<if test="pd.keywords != null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+				(
+				 NAME LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+				 or 
+				 NAME_EN LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') 
+				 or
+				 BIANMA LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+				)
+		</if>
+		order by ORDER_BY
+	</select>
+	
+	<!-- 通过ID获取其子级列表 -->
+	<select id="listSubDictByParentId" parameterType="String" resultMap="dictResultMap">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PARENT_ID = #{parentId} order by ORDER_BY 
+	</select>
+	
+	<!-- 通过ID获取其子级列表 -->
+	<select id="listSubDictByName" parameterType="String" resultMap="dictResultMap">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PARENT_ID = (select DICTIONARIES_ID from SYS_DICTIONARIES where NAME=#{NAME}) order by ORDER_BY 
+	</select>
+	
+	<!-- 排查表检查是否被占用 -->
+	<select id="findFromTbs" parameterType="pd" resultType="pd">
+		select
+			count(*) zs
+		from 
+			${thisTable}
+		where
+			BIANMA = #{BIANMA}
+	</select>
+	
+	<!-- 获取职称总数 -->
+	<select id="getTitle" parameterType="String" resultType="pd">
+		SELECT d.`NAME` AS titleName,COUNT(*) titleCount
+		FROM oa_staff s ,sys_dictionaries d
+		WHERE s.TITLE = d.DICTIONARIES_ID and s.FLAG="0"
+		GROUP BY s.TITLE
+		ORDER BY titleName
+	</select>
+	
+	<!-- 获取性别总数 -->
+	<select id="getSex" parameterType="String" resultType="pd">
+		SELECT s.SEX AS sexName,COUNT(*) sexCount 
+		from oa_staff s where s.FLAG="0"
+		GROUP BY s.SEX
+	</select>
+	
+	<!-- 获取英语水平总数 -->
+	<select id="getEnglish" parameterType="String" resultType="pd">
+		SELECT d.`NAME` AS englishName,COUNT(*) englishCount
+		FROM oa_staff s ,sys_dictionaries d
+		WHERE s.ENGLISH = d.DICTIONARIES_ID and s.FLAG="0"
+		GROUP BY s.ENGLISH
+	</select>
+	
+	<!-- 获取日语水平总数 -->
+	<select id="getJapanese" parameterType="String" resultType="pd">
+		SELECT d.`NAME` AS japaneseName,COUNT(*) japaneseCount
+		FROM oa_staff s ,sys_dictionaries d
+		WHERE s.JAPANESE = d.DICTIONARIES_ID and s.FLAG="0"
+		GROUP BY s.JAPANESE	
+	</select>
+	
+	<!-- 获取状态总数 -->
+	<select id="getStatus" parameterType="String" resultType="pd">
+		SELECT d.`NAME` AS statusName,COUNT(*) statusCount
+		FROM oa_staff s ,sys_dictionaries d
+		WHERE s.`STATUS` = d.DICTIONARIES_ID and s.FLAG="0"
+		GROUP BY s.`STATUS`	
+	</select>
+	
+	<!-- 根据parent的名称和名称获取ID -->
+	<select id="findByParentNameAndName" parameterType="pd" resultType="pd">
+		select
+		c.NAME,	
+		c.NAME_EN,	
+		c.BIANMA,	
+		c.ORDER_BY,	
+		c.PARENT_ID,	
+		c.BZ,	
+		c.TBSNAME,	
+		c.DICTIONARIES_ID
+		from 
+		sys_dictionaries c,sys_dictionaries f
+		where 
+		c.PARENT_ID = f.DICTIONARIES_ID and c.`NAME`=#{NAME} and f.`NAME`=#{PARENT_NAME} 
+	</select>
+	<!-- fh313596790qq(青苔) -->
+</mapper>

@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StaffMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_STAFF
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		STAFF_ID,	
+		NO,	
+		NAME,	
+		SEX,	
+		SCHOOL,	
+		ADDRESS,	
+		TEL,	
+		ENTRY_DATE,	
+		IDCARD,	
+		EMAIL,
+		JAPANESE,	
+		ENGLISH,	
+		PASS,	
+		PASS_NO,	
+		PASS_TERM,	
+		VISA,	
+		VISA_TYPE,	
+		TRAVEL_TYPE,	
+		STRENGTHS,	
+		DEVELOP_INTENT,	
+		FLAG,	
+		GRADUATE_DATE,	
+		TITLE,	
+		BACKSCHOOL_DATE,	
+		BACKCOMPANY_DATE,	
+		PASSWORD,	
+		STATUS,	
+		LEAVE_REASON,	
+		LEAVE_DATE,	
+		DEPARTMENT_ID,	
+		ROLE_ID,
+		DEPARTMENT_NAMES,
+		ATTITUDE_MARK,
+		JAPANESE_MARK,
+		ENGLISH_MARK,
+		JAVA_MARK,
+		ABAP_MARK,
+		YEARS_MARK,	
+		MEMO,
+		CREATIONUSER,
+		CREATIONDATE,
+		UPDATEUSER,
+		UPDATEDATE,
+		USER_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{STAFF_ID},	
+		#{NO},	
+		#{STAFFNAME},	
+		#{SEX},	
+		#{SCHOOL},	
+		#{ADDRESS},	
+		#{TEL},	
+		#{ENTRY_DATE},	
+		#{IDCARD},
+		#{EMAIL},	
+		#{JAPANESE},	
+		#{ENGLISH},	
+		#{PASS},	
+		#{PASS_NO},	
+		#{PASS_TERM},	
+		#{VISA},	
+		#{VISA_TYPE},	
+		#{TRAVEL_TYPE},	
+		#{STRENGTHS},	
+		#{DEVELOP_INTENT},	
+		#{FLAG},	
+		#{GRADUATE_DATE},	
+		#{TITLE},	
+		#{BACKSCHOOL_DATE},	
+		#{BACKCOMPANY_DATE},	
+		#{PASSWORD},	
+		#{STATUS},	
+		#{LEAVE_REASON},	
+		#{LEAVE_DATE},	
+		#{DEPARTMENT_ID},	
+		#{ROLE_ID},	
+		#{DEPARTMENT_NAMES},
+		#{ATTITUDE_MARK},
+		#{JAPANESE_MARK},
+		#{ENGLISH_MARK},
+		#{JAVA_MARK},
+		#{ABAP_MARK},
+		#{YEARS_MARK},	
+		#{MEMO},
+		#{CREATIONUSER},
+		#{CREATIONDATE},
+		#{UPDATEUSER},
+		#{UPDATEDATE},
+		#{USER_ID}	
+	</sql>
+	
+
+	<!-- 新增-->
+ 	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert> 
+	<insert id="saveev" parameterType="pd">
+		insert into 
+	    ev_result
+		(
+	EV_ID,
+	QUESTION_TYPE,
+	QUESTION_NAME,
+	ANSWER_NAME,
+	ANSWER_MARK,
+	EV_TIME,
+	STAFF_ID,
+	EV_MANAGER,
+	ANSWERID
+		) values (
+	#{EV_ID},
+	#{QUESTION_TYPE},
+	#{QUESTION_NAME},
+	#{ANSWER_NAME},
+	#{ANSWER_MARK},
+	#{EV_TIME},
+	#{STAFF_ID},
+	#{EV_MANAGER},
+	#{ANSWERID}
+		)
+	</insert> 
+
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			STAFF_ID = #{STAFF_ID}
+	</delete>
+	
+
+	<delete id="deleteev" parameterType="pd">
+		DELETE FROM
+		 ev_result
+		  WHERE
+		  STAFF_ID = #{STAFF_ID}
+	</delete>
+	
+	<update id="updateDepartNames" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES}
+		where
+			STAFF_ID = #{STAFF_ID}
+	</update>
+	
+	
+	<update id="editRole" parameterType="pd">
+		UPDATE sys_app_user 
+	    set ROLE_ID =(SELECT ROLE_ID from sys_role where title=#{DEPARTMENT_NAMES})
+	    WHERE USERNAME=#{USERNAME}
+	</update>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 			
+			NO = #{NO},
+			NAME = #{STAFFNAME},
+			SEX = #{SEX},
+			SCHOOL = #{SCHOOL},
+			ADDRESS = #{ADDRESS},
+			TEL = #{TEL},
+			ENTRY_DATE = #{ENTRY_DATE},
+			IDCARD = #{IDCARD},
+			EMAIL = #{EMAIL},
+			JAPANESE = #{JAPANESE},
+			ENGLISH = #{ENGLISH},
+			PASS = #{PASS},
+			PASS_NO = #{PASS_NO},
+			PASS_TERM = #{PASS_TERM},
+			VISA = #{VISA},
+			VISA_TYPE = #{VISA_TYPE},
+			TRAVEL_TYPE = #{TRAVEL_TYPE},
+			STRENGTHS = #{STRENGTHS},
+			DEVELOP_INTENT = #{DEVELOP_INTENT},
+			FLAG = #{FLAG},
+			GRADUATE_DATE = #{GRADUATE_DATE},
+			TITLE = #{TITLE},
+			BACKSCHOOL_DATE = #{BACKSCHOOL_DATE},
+			BACKCOMPANY_DATE = #{BACKCOMPANY_DATE},
+			PASSWORD = #{PASSWORD},
+			STATUS = #{STATUS},
+			LEAVE_REASON = #{LEAVE_REASON},
+			LEAVE_DATE = #{LEAVE_DATE},
+			DEPARTMENT_ID = #{DEPARTMENT_ID},
+			ROLE_ID = #{ROLE_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES},
+			MEMO = #{MEMO},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}		   
+		where 
+		STAFF_ID = #{STAFF_ID}
+	</update>
+	<!-- 修改 -->
+	<update id="editByNo" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 						
+			NAME = #{STAFFNAME},
+			SEX = #{SEX},
+			SCHOOL = #{SCHOOL},
+			ADDRESS = #{ADDRESS},
+			TEL = #{TEL},
+			ENTRY_DATE = #{ENTRY_DATE},
+			IDCARD = #{IDCARD},
+			EMAIL = #{EMAIL},
+			JAPANESE = #{JAPANESE},
+			ENGLISH = #{ENGLISH},
+			PASS = #{PASS},
+			PASS_NO = #{PASS_NO},
+			PASS_TERM = #{PASS_TERM},
+			VISA = #{VISA},
+			VISA_TYPE = #{VISA_TYPE},
+			TRAVEL_TYPE = #{TRAVEL_TYPE},
+			STRENGTHS = #{STRENGTHS},
+			DEVELOP_INTENT = #{DEVELOP_INTENT},
+			FLAG = #{FLAG},
+			GRADUATE_DATE = #{GRADUATE_DATE},
+			TITLE = #{TITLE},
+			BACKSCHOOL_DATE = #{BACKSCHOOL_DATE},
+			BACKCOMPANY_DATE = #{BACKCOMPANY_DATE},
+			PASSWORD = #{PASSWORD},
+			STATUS = #{STATUS},
+			LEAVE_REASON = #{LEAVE_REASON},
+			LEAVE_DATE = #{LEAVE_DATE},
+			DEPARTMENT_ID = #{DEPARTMENT_ID},
+			ROLE_ID = #{ROLE_ID},
+			DEPARTMENT_NAMES = #{DEPARTMENT_NAMES},
+			MEMO = #{MEMO},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE},
+		     USER_ID=#{USER_ID}
+		where 
+		NO = #{NO}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			STAFF_ID = #{STAFF_ID} AND FLAG="0" 
+	</select>
+	
+	<!-- 通过USERID获取数据 -->
+	<select id="findByUserId" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			USER_ID = #{USER_ID} AND FLAG="0" 
+	</select>
+	
+	
+	<!-- 通过邮箱获取数据 -->
+	<select id="findByEmail" parameterType="pd" resultType="pd">
+		select 
+			<include refid="Field"></include>
+		from 
+			<include refid="tableName"></include>
+		where 
+			EMAIL = #{EMAIL}
+		<if test="NO != null and NO != ''">
+			and NO != #{NO} 
+		</if>
+	</select>
+	
+		<!-- 通过ID获取数据 -->
+	<select id="findByNo" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			NO = #{NO}  
+	</select>
+	<!-- 通过ID获取项目经理和项目总监名字 -->
+	<select id="findByNo1" parameterType="pd" resultType="pd">
+		SELECT p1.NAME AS MANAGER , p2.NAME AS DIRECTOR FROM 
+ ( SELECT NAME FROM oa_staff WHERE `NO` = #{PROJECT_MANAGER} ) p1,
+ ( SELECT NAME FROM oa_staff WHERE `NO` = #{PROJECT_DIRECTOR} ) p2
+	</select>
+	<select id="findAnswerId" parameterType="page" resultType="pd">
+		select 
+		ANSWERID  
+		from 
+		ev_result
+		where STAFF_ID = #{STAFF_ID}
+		
+	</select>
+	
+	<select id="findTypeByQuestion" parameterType="String" resultType="String">
+		select 
+		distinct ev_question_type
+		from 
+		ev_answer
+		where 
+		ev_question_name = #{key}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select distinct(s.STAFF_ID),
+		s.NO,	
+		s.NAME AS STAFFNAME,	
+		s.SEX,	
+		s.SCHOOL,	
+		s.ADDRESS,	
+		s.TEL,	
+		s.ENTRY_DATE,	
+		s.IDCARD,
+		s.EMAIL,	
+		s.JAPANESE,	
+		s.ENGLISH,	
+		s.PASS,	
+		s.PASS_NO,	
+		s.PASS_TERM,	
+		s.VISA,	
+		s.VISA_TYPE,	
+		s.TRAVEL_TYPE,	
+		s.STRENGTHS,	
+		s.DEVELOP_INTENT,	
+		s.FLAG,	
+		s.GRADUATE_DATE,	
+		s.TITLE,	
+		s.BACKSCHOOL_DATE,	
+		s.BACKCOMPANY_DATE,	
+		s.PASSWORD,	
+		s.STATUS,	
+		s.LEAVE_REASON,	
+		s.LEAVE_DATE,	
+		s.DEPARTMENT_ID,	
+		s.ROLE_ID,
+		s.USER_ID,
+		s.DEPARTMENT_NAMES,	
+		s.MEMO,
+		r.ROLE_NAME AS ROLNAME,
+		dic.NAME AS TITLENAME,
+		dic1.NAME AS JAPANESENAME,
+		dic2.NAME AS ENGLISHNAME,
+		dic3.NAME AS STATUSNAME,
+		dic4.NAME AS TRAVEL_TYPENAME,
+		dic5.NAME AS VISATYPENAME,
+		m.MEMBER_ID,
+		sp.PROJECT_NAME,
+		sp.PROJECT_MANAGER,
+		m.MEMBER_BTIME as MEMBER_BTIME,
+		m.MEMBER_ETIME,
+		sp.PROJECT_ID
+		from 
+		OA_STAFF s
+		LEFT JOIN PRO_MEMBER m  ON m.MEMBER_ID=s.NO
+		LEFT JOIN SYS_PROJECT sp  ON m.PROJECT_ID=sp.PROJECT_ID
+		LEFT JOIN SYS_ROLE r ON s.ROLE_ID = r.ROLE_ID
+		LEFT JOIN SYS_DICTIONARIES dic ON s.TITLE = dic.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic1 ON s.JAPANESE = dic1.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic2 ON s.ENGLISH = dic2.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic3 ON s.STATUS = dic3.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic4 ON s.TRAVEL_TYPE = dic4.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic5 ON s.VISA_TYPE = dic5.DICTIONARIES_ID
+		where s.FLAG="0"
+		<if test="pd.STAFFNAME!= null and pd.STAFFNAME != ''">
+			and	s.NAME LIKE CONCAT(CONCAT('%', #{pd.STAFFNAME}),'%')
+		</if>
+		<if test="pd.NO!= null and pd.NO != ''">
+			and s.NO = #{pd.NO} 
+		</if>		
+		<if test="pd.TEL!= null and pd.TEL != ''">
+			and s.TEL LIKE CONCAT(CONCAT('%',#{pd.TEL}),'%') 
+		</if>		
+		<if test="pd.TITLE!= null and pd.TITLE != ''">
+			and s.TITLE = #{pd.TITLE} 
+		</if>
+		<if test="pd.STATUS!= null and pd.STATUS != ''">
+			and s.STATUS = #{pd.STATUS} 
+		</if>
+		<if test="pd.JAPANESE!= null and pd.JAPANESE != ''">
+			and s.JAPANESE = #{pd.JAPANESE} 
+		</if>
+		<if test="pd.PASS!= null and pd.PASS != ''">
+			and s.PASS = #{pd.PASS} 
+		</if>
+		<if test="pd.VISA!= null and pd.VISA != ''">
+			and s.VISA = #{pd.VISA} 
+		</if>	
+		<if test="pd.ENGLISH!= null and pd.ENGLISH != ''">
+			and	s.ENGLISH = #{pd.ENGLISH} 
+		</if>		
+		<if test="pd.DEPARTMENT_ID!= null and pd.DEPARTMENT_ID != ''">
+			and	s.DEPARTMENT_ID in ${pd.item} 
+		</if>		
+		<if test="pd.SCHOOL!= null and pd.SCHOOL != ''">
+			and s.SCHOOL LIKE CONCAT(CONCAT('%',#{pd.SCHOOL}),'%') 
+				<!--	根据需求自己加检索条件
+					字段1 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+					 or 
+					字段2 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') 
+				-->
+				
+		</if>
+		<if test="pd.ADDRESS!= null and pd.ADDRESS != ''">
+			and	s.ADDRESS LIKE CONCAT(CONCAT('%',#{pd.ADDRESS}),'%') 
+		</if>
+		
+		<if test="pd.FREETIME!= null and pd.FREETIME != ''">
+		 and  s.No NOT IN (select  MEMBER_ID FROM PRO_MEMBER x WHERE
+		 #{pd.FREETIME} BETWEEN x.MEMBER_BTIME AND x.MEMBER_ETIME and x.FLAG="0") 
+		</if>
+		
+		group by s.STAFF_ID
+		order by s.NO ASC	
+	</select>
+	
+	
+	
+	<!-- 全部闲置列表 -->
+	<select id="idleStaffList" parameterType="pd" resultType="pd">
+		select distinct(s.STAFF_ID),
+		s.NO,	
+		s.NAME AS STAFFNAME,			
+		s.DEPARTMENT_ID,	
+		s.DEPARTMENT_NAMES,	
+		s.MEMO,
+		m.MEMBER_BTIME as MEMBER_BTIME,
+		m.MEMBER_ETIME
+		from 
+		OA_STAFF s
+		LEFT JOIN PRO_MEMBER m  ON m.MEMBER_ID=s.NO
+		where s.FLAG="0" 
+		<if test="FREETIME!= null and FREETIME != ''">
+		 and  s.No NOT IN (select  MEMBER_ID FROM PRO_MEMBER x WHERE
+		 #{FREETIME} BETWEEN x.MEMBER_BTIME AND x.MEMBER_ETIME and x.FLAG="0") 
+		</if>
+		group by s.STAFF_ID
+		order by s.NO ASC	
+	</select>
+	
+
+
+
+	 <select id="prolist" parameterType="page" resultType="pd">
+	select 
+	    s.NO,
+	    s.NAME AS STAFFNAME,	
+		sp.PROJECT_NAME,
+		sp.PROJECT_MANAGER,
+		m.MEMBER_BTIME as MEMBER_BTIME,
+		m.MEMBER_ETIME,
+		sp.PROJECT_ID
+	from 
+		OA_STAFF s
+		LEFT JOIN PRO_MEMBER m  ON m.MEMBER_ID=s.NO
+		LEFT JOIN SYS_PROJECT sp  ON m.PROJECT_ID=sp.PROJECT_ID
+		where 1=1 AND s.FLAG="0" 
+		 and m.MEMBER_ID=#{pd.NO} and #{pd.FREETIME}&lt;m.MEMBER_BTIME
+		 order by m.MEMBER_BTIME desc
+	</select> 
+	
+	  <select id="prolistbtime" parameterType="pd" resultType="pd">
+	select 
+	    s.NO,
+	    s.NAME AS STAFFNAME,	
+		sp.PROJECT_NAME,
+		sp.PROJECT_MANAGER,
+		m.MEMBER_BTIME as MEMBER_BTIME,
+		m.MEMBER_ETIME,
+		sp.PROJECT_ID
+	from 
+		OA_STAFF s
+		LEFT JOIN PRO_MEMBER m  ON m.MEMBER_ID=s.NO
+		LEFT JOIN SYS_PROJECT sp  ON m.PROJECT_ID=sp.PROJECT_ID
+		where 1=1 AND s.FLAG="0" 
+		 and m.MEMBER_ID=#{NO} and #{FREETIME}&lt;m.MEMBER_BTIME
+		 order by m.MEMBER_BTIME desc
+	</select> 
+	
+	
+
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> WHERE FLAG="0" 
+	</select>
+	
+	
+	<select id="findType" parameterType="pd" resultType="String">
+		select
+		distinct ev_question_type
+		from 
+		ev_answer
+		
+	</select>
+	<select id="findQuestionByType" parameterType="String" resultType="String">
+		select
+		ev_question_name
+		from 
+		ev_answer
+		where ev_question_type=#{t}
+		
+	</select>
+	<select id="findAnswerByQuestion" parameterType="pd" resultType="pd" >
+		select
+		ev_answer_id,
+		ev_answer_name,
+		ev_answer_mark
+		from 
+		ev_answer
+		where 
+		ev_question_name=#{questionone}
+		and ev_question_type=#{typeone}
+		order by ev_answer_mark asc	
+	</select>
+	
+	<select id="findAnswerById" parameterType="pd" resultType="pd">
+		select
+		*
+		from 
+		ev_answer
+		where EV_ANSWER_ID=#{EV_ANSWER_ID}	
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		update from
+		<include refid="tableName"></include>
+		set 
+			FLAG = #{FLAG},	
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+			STAFF_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach> 
+	</delete>
+	
+	
+	
+	<!-- 批量修改 -->
+	<update id="editAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			FLAG = #{FLAG},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		STAFF_ID = #{STAFF_ID}
+	</update>
+	
+	
+	<!-- 绑定用户 -->
+	<update id="userBinding" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			USER_ID = #{USER_ID}
+		where 
+			STAFF_ID = #{STAFF_ID}
+	</update>	
+	
+	
+	<!-- 员工能力展示 -->
+	<select id="findScoreById" parameterType="page" resultType="pd">
+		select s.NO,s.NAME,p1.YEARS_MARK as YEARS_MARK , p2.JAPANESE_MARK as JAPANESE_MARK ,
+		 p3.ABAP_MARK as ABAP_MARK,p4.ATTITUDE_MARK as ATTITUDE_MARK,
+		 p5.JAVA_MARK as JAVA_MARK,p6.ENGLISH_MARK as ENGLISH_MARK
+		from (select sum(answer_mark) as YEARS_MARK FROM ev_result WHERE QUESTION_TYPE='0' and STAFF_ID=#{STAFF_ID}) p1 ,
+			 (select sum(answer_mark) as JAPANESE_MARK FROM ev_result WHERE QUESTION_TYPE='2' and STAFF_ID=#{STAFF_ID}) p2 ,
+             (select sum(answer_mark) as ABAP_MARK FROM ev_result WHERE QUESTION_TYPE='4' and STAFF_ID=#{STAFF_ID})p3,
+             (select sum(answer_mark) as ATTITUDE_MARK FROM ev_result WHERE QUESTION_TYPE='1' and STAFF_ID=#{STAFF_ID})p4,
+             (select sum(answer_mark) as JAVA_MARK FROM ev_result WHERE QUESTION_TYPE='5' and STAFF_ID=#{STAFF_ID})p5,
+             (select sum(answer_mark) as ENGLISH_MARK FROM ev_result WHERE QUESTION_TYPE='3' and STAFF_ID=#{STAFF_ID})p6,oa_staff s
+ where STAFF_ID=#{STAFF_ID}
+             
+
+	</select>
+	
+	
+	
+	<update id="editMe" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			MEMO = #{MEMO}
+		where 
+			STAFF_ID = #{STAFF_ID}
+	</update>
+		<!-- 员工能力展示 -->
+	<select id="findTitleName" parameterType="pd" resultType="pd">
+		SELECT NAME AS TITLENAME from sys_dictionaries WHERE DICTIONARIES_ID = #{TITLE}
+	</select>
+	
+		<!-- 获取员工角色 -->
+	<select id="findRoleById" parameterType="String" resultType="pd">
+		SELECT r.`ROLE_NAME` AS roleName,COUNT(*) roleCount
+		FROM oa_staff s ,sys_role r
+		WHERE s.ROLE_ID = r.ROLE_ID and s.FLAG="0"
+		GROUP BY s.ROLE_ID
+	</select>
+	
+</mapper>

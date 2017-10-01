@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CostMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		project_cost
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		COST_ID,
+		COST_FOUNDER,	
+		COST_ITEMS,	
+		COST_MONEY,	
+		COST_NOTE,
+		COST_USEDATE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{COST_ID},	
+		#{COST_FOUNDER},
+		#{COST_ITEMS},	
+		#{COST_MONEY},
+		#{COST_NOTE},	
+		#{COST_USEDATE}	
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>,FLAG,CREATIONUSER,CREATIONDATE,UPDATEUSER,UPDATEDATE
+		,PROJECT_ID)  values (
+	<include refid="FieldValue"></include>
+		,#{FLAG},#{CREATIONUSER},#{CREATIONDATE},#{UPDATEUSER},#{UPDATEDATE},#{PROJECT_ID})	
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			COST_ID = #{COST_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			COST_ID = #{COST_ID},
+			COST_FOUNDER =  #{COST_FOUNDER},
+			COST_ITEMS = #{COST_ITEMS},
+			COST_MONEY = #{COST_MONEY},
+			COST_USEDATE = #{COST_USEDATE},
+			FLAG = #{FLAG},
+			UPDATEUSER=#{UPDATEUSER},
+			UPDATEDATE=#{UPDATEDATE},
+			COST_NOTE =#{COST_NOTE}
+		where 
+		COST_ID = #{COST_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		as c
+		where 
+		COST_ID = #{COST_ID} and c.FLAG="0" 
+	</select>
+	<!-- 单个项目所有费用 -->
+	<select id="proCost" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>,FLAG,CREATIONUSER,CREATIONDATE,UPDATEUSER,UPDATEDATE
+		from
+		<include refid="tableName"></include> 
+		where PROJECT_ID = #{PROJECT_ID} AND FLAG = "0"
+	</select>
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>,dic.NAME AS COST_ITEMSNAME,staff.NAME AS FOUNDER_NAME
+		from 
+		<include refid="tableName"></include>as p,SYS_DICTIONARIES as dic,OA_STAFF as staff
+		where 1=1
+		AND
+		p.COST_ITEMS = dic.DICTIONARIES_ID AND  p.FLAG="0" AND P.COST_FOUNDER=staff.NO AND staff.FLAG="0"
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+		and	PROJECT_ID = #{pd.PROJECT_ID} 
+		</if>
+		<if test="pd.COST_FOUNDER!= null and pd.COST_FOUNDER != ''">
+		and	COST_FOUNDER = #{pd.COST_FOUNDER}
+		</if>
+		<if test="pd.COST_USEDATE!= null and pd.COST_USEDATE != ''">
+		and	COST_USEDATE LIKE CONCAT(CONCAT('%', #{pd.COST_USEDATE}),'%')
+		</if>	
+		<if test="pd.COST_ITEMS!= null and pd.COST_ITEMS != ''">
+		and	COST_ITEMS LIKE CONCAT(CONCAT('%', #{pd.COST_ITEMS}),'%')
+		</if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	<!-- 查询所有人员 -->
+	<select id="costFreeStaff" parameterType="pd" resultType="pd">
+		select *
+		from oa_staff S where S.FLAG="0" order by NO
+	</select>
+	
+	<!-- 批量删除 -->
+	<update id="editMemberAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+			FLAG = #{FLAG},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		 where
+		 COST_ID = #{COST_ID}
+	</update>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>

@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ProjectMemberMapper">
+
+	<!--表名 -->
+	<sql id="tableName">
+		pro_member
+	</sql>
+
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,
+		MEMBER_ID,
+		MEMBER_ROLE,
+		MEMBER_BTIME,
+		MEMBER_ETIME,
+		MEMBER_COST,
+		MEMBER_ACTUL,
+		PROJECT_EV,
+		MANAGER_EV,
+		PROJECT_ID		
+	</sql>
+
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},
+		#{MEMBER_ID},
+		#{MEMBER_ROLE},
+		#{MEMBER_BTIME},
+		#{MEMBER_ETIME},
+		#{MEMBER_COST},
+		#{MEMBER_ACTUL},
+		#{PROJECT_EV},
+		#{MANAGER_EV},
+		#{PROJECT_ID}		
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="save" parameterType="pd">
+		insert into
+		<include refid="tableName"></include>
+		(
+		<include refid="Field"></include>,FLAG,CREATIONUSER,CREATIONDATE,UPDATEUSER,UPDATEDATE
+		) values (
+		<include refid="FieldValue"></include>
+		,#{FLAG},#{CREATIONUSER},#{CREATIONDATE},#{UPDATEUSER},#{UPDATEDATE})
+	</insert>
+	
+<!-- 	<update id="saveev" parameterType="pd">
+		update 
+	    pro_ev_result
+	    set
+	PRO_EV_ID=#{PRO_EV_ID},
+	PRO_QUESTION_TYPE=#{PRO_QUESTION_TYPE},
+	PRO_QUESTION_NAME=#{PRO_QUESTION_NAME},
+	PRO_ANSWER_NAME=#{PRO_ANSWER_NAME},
+	PRO_ANSWER_MARK=#{PRO_ANSWER_MARK},
+	PRO_EV_TIME=#{PRO_EV_TIME},
+	PRO_MEMBER_ID=#{PRO_MEMBER_ID},
+	PRO_EV_MANAGER=#{PRO_EV_MANAGER},
+	PROJECT_ID=#{PROJECT_ID}
+		where PRO_MEMBER_ID=#{PRO_MEMBER_ID} and PROJECT_ID=#{PROJECT_ID}
+	</update> -->  
+	
+ <insert id="saveev" parameterType="pd">
+		insert into 
+	    pro_ev_result
+		(
+	PRO_EV_ID,
+	PRO_QUESTION_TYPE,
+	PRO_QUESTION_NAME,
+	PRO_ANSWER_NAME,
+	PRO_ANSWER_MARK,
+	PRO_EV_TIME,
+	PRO_MEMBER_ID,
+	PRO_EV_MANAGER,
+	PROJECT_ID,
+	ANSWERID
+		) values (
+	#{PRO_EV_ID},
+	#{PRO_QUESTION_TYPE},
+	#{PRO_QUESTION_NAME},
+	#{PRO_ANSWER_NAME},
+	#{PRO_ANSWER_MARK},
+	#{PRO_EV_TIME},
+	#{PRO_MEMBER_ID},
+	#{PRO_EV_MANAGER},
+	#{PROJECT_ID},
+	#{ANSWERID}
+		)
+	</insert>  
+	 
+	 <!-- 修改分数 -->
+	<update id="editEv" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set		
+		     PROJECT_EV= #{PROJECT_EV},
+		    MANAGER_EV = #{MANAGER_EV}
+		where 
+		MEMBER_ID = #{MEMBER_ID} and PROJECT_ID = #{PROJECT_ID}
+	</update> 
+
+	<!-- 删除 -->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where
+		ID = #{ID}
+	</delete>
+
+    <!-- 删除 -->
+	<delete id="deleteev" parameterType="pd">
+		DELETE FROM
+		 pro_ev_result
+		  WHERE
+		  PRO_MEMBER_ID = #{MEMBER_ID} and PROJECT_ID = #{PROJECT_ID} 
+	</delete>
+
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		MEMBER_ROLE = #{MEMBER_ROLE},
+		MEMBER_BTIME = #{MEMBER_BTIME},
+		MEMBER_ETIME = #{MEMBER_ETIME},
+		MEMBER_COST = #{MEMBER_COST},
+		MEMBER_ACTUL = #{MEMBER_ACTUL},
+		FLAG = #{FLAG},
+		UPDATEUSER=#{UPDATEUSER},
+		UPDATEDATE=#{UPDATEDATE}
+		where
+		ID = #{ID}
+	</update>
+
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		,staff.NAME AS MEMBER_NAME
+		from
+		<include refid="tableName"></include>
+		as P,OA_STAFF AS staff
+		where
+		ID = #{ID} and P.MEMBER_ID=staff.NO AND staff.FLAG="0" and P.FLAG="0"
+		
+	</select>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findAnswerId" parameterType="page" resultType="pd">
+		select 
+		ANSWERID 
+		from 
+		pro_ev_result
+		where PRO_MEMBER_ID = #{MEMBER_ID} and PROJECT_ID = #{PROJECT_ID}
+		
+	</select>
+	
+	<select id="findTypeByQuestion" parameterType="String" resultType="String">
+		select 
+		distinct question_type
+		from 
+		pro_ev_answer
+		where 
+		question_name = #{key}
+		order by question_type ASC
+	</select>
+
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		,dic.NAME AS MEMBER_ROLENAME,staff.NAME AS MEMBER_NAME
+		from
+		<include refid="tableName"></include>
+		as P ,SYS_DICTIONARIES as dic,OA_STAFF as staff
+		where 1=1
+		AND
+		p.MEMBER_ROLE = dic.DICTIONARIES_ID AND P.MEMBER_ID=staff.NO AND staff.FLAG="0" AND P.FLAG="0"
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			AND PROJECT_ID = #{pd.PROJECT_ID}
+		</if>
+		<if test="pd.pMember!= null and pd.pMember != ''">
+			AND staff.NAME LIKE CONCAT(CONCAT('%', #{pd.pMember}),'%')
+		</if>
+		order by staff.NO ASC
+	</select>
+	
+	
+	<!-- 列表 -->
+	<select id="listMember" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		,dic.NAME AS MEMBER_ROLENAME,staff.NAME AS MEMBER_NAME
+		from
+		<include refid="tableName"></include>
+		as P ,SYS_DICTIONARIES as dic,OA_STAFF as staff
+		where 1=1
+		AND
+		p.MEMBER_ROLE = dic.DICTIONARIES_ID AND P.MEMBER_ID=staff.NO AND staff.FLAG="0" AND P.FLAG="0"
+		<if test="pd.PROJECT_ID!= null and pd.PROJECT_ID != ''">
+			AND PROJECT_ID = #{PROJECT_ID}
+		</if>
+		order by MEMBER_ID ASC
+	</select>
+
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+	</select>
+	
+	<select id="findType" parameterType="pd" resultType="String">
+		select
+		distinct question_type
+		from 
+		pro_ev_answer
+		order by question_type ASC
+	</select>
+	<select id="findQuestionByType" parameterType="String" resultType="String">
+		select
+		question_name
+		from 
+		pro_ev_answer
+		where question_type=#{t}
+	</select>
+	
+	
+	
+	<select id="findAnswerByQuestion" parameterType="pd" resultType="pd" >
+		select
+		ev_id,
+		answer_name,
+		answer_mark
+		from 
+		pro_ev_answer
+		where 
+		question_name=#{questionone}
+		and question_type=#{typeone}
+		order by answer_mark
+	</select>
+	
+	<select id="findAnswerById" parameterType="pd" resultType="pd">
+		select
+		*
+		from 
+		pro_ev_answer
+		where EV_ID=#{EV_ID}	
+	</select>
+	
+	<select id="findMark" parameterType="pd" resultType="pd">
+		SELECT 
+		SUM(pro_ev_result.PRO_ANSWER_MARK) as PROJECT_EV
+		 FROM
+		  pro_ev_result 
+		  WHERE pro_ev_result.PRO_QUESTION_TYPE NOT IN ('7') and PRO_MEMBER_ID = #{MEMBER_ID} and PROJECT_ID = #{PROJECT_ID}
+		<!-- pro_ev_result.PRO_ANSWER_MARK as MANAGER_EV FROM pro_ev_result WHERE pro_ev_result.PRO_QUESTION_TYPE IN ('7')} -->
+		<!-- where 
+		MEMBER_ID = #{PRO_MEMBER_ID} and PROJECT_ID = #{PROJECT_ID} -->
+	</select>
+	
+	<select id="findManagerMark" parameterType="pd" resultType="pd">
+		SELECT 
+		 SUM(pro_ev_result.PRO_ANSWER_MARK) as MANAGER_EV 
+		 FROM 
+		 pro_ev_result
+		  WHERE pro_ev_result.PRO_QUESTION_TYPE IN ('7') and PRO_MEMBER_ID = #{MEMBER_ID} and PROJECT_ID = #{PROJECT_ID} 
+	</select>
+	
+	
+	<!-- 单个项目所有成员 -->
+	<select id="proMember" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>,FLAG,CREATIONUSER,CREATIONDATE,UPDATEUSER,UPDATEDATE
+		from
+		<include refid="tableName"></include> 
+		where PROJECT_ID = #{PROJECT_ID} AND FLAG = "0"
+	</select>
+
+
+	<!-- 获取级别成本 -->
+	<select id="getLevel" parameterType="pd" resultType="pd">
+		select
+		l.COST as MEMBER_COST
+		FROM sys_levelcost as l
+		where `LEVEL` = (SELECT TITLE from oa_staff WHERE NO = #{MEMBER_ID} AND FLAG="0")
+	</select>
+
+	<!-- 批量删除 -->
+	<update id="editMemberAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			FLAG = #{FLAG},
+		    UPDATEUSER=#{UPDATEUSER},
+		    UPDATEDATE=#{UPDATEDATE}
+		where 
+		MEMBER_ID = #{ID}
+	</update>
+
+	<!-- 查询所有人员 -->
+	<select id="freeStaff" parameterType="pd" resultType="pd">
+		select *
+		from oa_staff S where S.FLAG="0" order by NO
+	</select>
+
+	<!-- 查询是否有项目经理 -->
+	<select id="hasM" parameterType="pd" resultType="pd">
+		SELECT MEMBER_ID , MEMBER_ROLE from pro_member
+		 WHERE MEMBER_ROLE =#{roleId} AND PROJECT_ID=#{projectId} and FLAG="0"
+	</select>
+
+	<!-- unusedstaff列表 -->
+	<!-- <select id="unusedStaffPage" parameterType="pd" resultType="pd">
+		select
+		s.STAFF_ID,	
+		s.NO,	
+		s.NAME AS STAFFNAME,	
+		s.SEX,		
+		s.ADDRESS,	
+		s.TEL,	
+		s.ENTRY_DATE,	
+		s.IDCARD,	
+		s.JAPANESE,	
+		s.ENGLISH,	
+		s.PASS,	
+		s.PASS_NO,	
+		s.PASS_TERM,	
+		s.VISA,	
+		s.VISA_TYPE,	
+		s.TRAVEL_TYPE,	
+		s.STRENGTHS,	
+		s.DEVELOP_INTENT,	
+		s.FLAG,	
+		s.GRADUATE_DATE,	
+		s.TITLE,	
+		s.BACKSCHOOL_DATE,	
+		s.BACKCOMPANY_DATE,	
+		s.PASSWORD,	
+		s.STATUS,	
+		s.LEAVE_REASON,	
+		s.LEAVE_DATE,	
+		s.DEPARTMENT_ID,	
+		s.ROLE_ID,
+		s.USER_ID,
+		s.DEPARTMENT_NAMES,	
+		s.MEMO,
+		r.ROLE_NAME AS ROLNAME,
+		dic.NAME AS TITLENAME,
+		dic1.NAME AS JAPANESENAME,
+		dic2.NAME AS ENGLISHNAME,
+		dic3.NAME AS STATUSNAME,
+		dic4.NAME AS TRAVEL_TYPENAME
+		from 
+		OA_STAFF s
+		LEFT JOIN SYS_ROLE r ON s.ROLE_ID = r.ROLE_ID
+		LEFT JOIN SYS_DICTIONARIES dic ON s.TITLE = dic.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic1 ON s.JAPANESE = dic1.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic2 ON s.ENGLISH = dic2.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic3 ON s.STATUS = dic3.DICTIONARIES_ID
+		LEFT JOIN SYS_DICTIONARIES dic4 ON s.TRAVEL_TYPE = dic4.DICTIONARIES_ID
+		where 1=1 
+		<if test="pd.STAFFNAME!= null and pd.STAFFNAME != ''">
+			and s.NAME LIKE CONCAT(CONCAT('%',#{pd.STAFFNAME}),'%') 
+		</if>
+		<if test="pd.NO!= null and pd.NO != ''">
+			and s.NO = #{pd.NO} 
+		</if>		
+		<if test="pd.TEL!= null and pd.TEL != ''">
+			and s.TEL LIKE CONCAT(CONCAT('%',#{pd.TEL}),'%') 
+		</if>		
+		<if test="pd.TITLE!= null and pd.TITLE != ''">
+			and s.TITLE = #{pd.TITLE} 
+		</if>
+		<if test="pd.STATUS!= null and pd.STATUS != ''">
+			and s.STATUS = #{pd.STATUS} 
+		</if>
+		<if test="pd.JAPANESE!= null and pd.JAPANESE != ''">
+			and s.JAPANESE = #{pd.JAPANESE} 
+		</if>
+		<if test="pd.PASS!= null and pd.PASS != ''">
+			and s.PASS = #{pd.PASS} 
+		</if>
+		<if test="pd.VISA!= null and pd.VISA != ''">
+			and s.VISA = #{pd.VISA} 
+		</if>	
+		<if test="pd.ENGLISH!= null and pd.ENGLISH != ''">
+			and	s.ENGLISH = #{pd.ENGLISH} 
+		</if>		
+		<if test="pd.DEPARTMENT_ID!= null and pd.DEPARTMENT_ID != ''">
+			and	s.DEPARTMENT_ID in ${pd.item} 
+		</if>		
+		
+		<if test="pd.ADDRESS!= null and pd.ADDRESS != ''">
+			and	s.ADDRESS LIKE CONCAT(CONCAT('%',#{pd.ADDRESS}),'%') 
+		</if>
+		 and  s.No NOT IN (select MEMBER_ID FROM PRO_MEMBER WHERE
+		 #{pd.FREETIME} BETWEEN MEMBER_BTIME AND MEMBER_ETIME) 
+		order by s.NO
+	</select> -->
+	
+
+	<!-- fh313596790qq(青苔) -->
+</mapper>

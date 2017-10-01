@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PcLeaveItemMapper">
+<!--表名 -->
+	<sql id="tableName">
+		pc_leave_item
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,	
+		PC_LEAVEID,
+		USERNAME,	
+		RAM,
+		HDISK,
+		TYPE,
+		ACCESSORIES,
+		PURPOSE,
+        ROOM_NAME,
+		EINLASS,
+		EXIT_DATE,
+		STATE,
+		PCNUMBER,
+		PROCESSINSTANCEID,
+		TASKID,
+		PCSTATE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},	
+		#{PC_LEAVEID},	
+		#{USERNAME},	
+		#{RAM},
+		#{HDISK},	
+		#{TYPE},	
+		#{ACCESSORIES},
+		#{PURPOSE},
+		#{ROOM_NAME},	
+		#{EINLASS},	
+		#{EXIT_DATE},
+		#{STATE},	
+		#{PCNUMBER},
+		#{PROCESSINSTANCEID},
+		#{TASKID},
+		#{PCSTATE}			
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 查找所有的流程实例ID -->
+	<select id="findAllProcessInstanceId" resultType="string">
+		select 
+			PROCESSINSTANCEID 
+		from 
+			pc_leave_item
+		where
+			PROCESSINSTANCEID != ''
+		union
+		select 
+			PROCESSINSTANCEID 
+		from 
+			pc_leave
+		where
+			PROCESSINSTANCEID != ''	
+	</select>
+		
+	<!-- 根据流程Id查找申请人信息和流程信息 -->
+	<select id="findStaffProByProInstId" parameterType="pd" resultType="pd">
+		select 
+			oa.`NO`,oa.`NAME`,pc.ID ID,pc.TASKID TASK_ID,"入场流程"  PROCESSTYPE
+		from 
+			oa_staff oa,pc_leave pc
+		where 
+			pc.USERNAME = oa.USER_ID
+		and
+			pc.PROCESSINSTANCEID = #{PROCESSINSTANCEID}
+		and 
+			oa.FLAG = "0"
+		union 
+		select 
+			oa.`NO`,oa.`NAME`,item.ID ID,item.TASKID TASK_ID,"退场流程"  PROCESSTYPE
+		from 
+			oa_staff oa,pc_leave_item item
+		where 
+			item.USERNAME = oa.USER_ID
+		and
+			item.PROCESSINSTANCEID = #{PROCESSINSTANCEID}
+		and 
+			oa.FLAG = "0"	
+	</select>
+	
+	<select id="getCountByStatusAndUser" parameterType="pd" resultType="pd">
+		select count(*) total FROM
+		(
+			select pc.ID ID from pc_leave pc where pc.USERNAME=#{USERNAME} and pc.STATE=#{STATE}
+			UNION
+			select item.ID ID from pc_leave_item item where item.USERNAME=#{USERNAME} and item.STATE=#{STATE2}
+		) ids
+	</select>
+	
+	<select id="getPcLevelByStatusAndUser" parameterType="pd" resultType="pd">
+		select pc.ID ID,pc.PROCESSINSTANCEID PROCESSINSTANCEID,'入场流程' PROCESSTYPE from pc_leave pc where pc.USERNAME=#{USERNAME} and pc.STATE=#{STATE}
+		UNION
+		select item.ID ID,item.PROCESSINSTANCEID PROCESSINSTANCEID,'退场流程' PROCESSTYPE from pc_leave_item item where item.USERNAME=#{USERNAME} and item.STATE=#{STATE2}
+	</select>
+	
+	<select id="getItemByProInstId" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		where	
+		PROCESSINSTANCEID = #{PROCESSINSTANCEID}
+	</select>
+	
+	<select id="getItemById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		where	
+		ID = #{ID}
+	</select>
+	<select id="getItemByIds" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		where	
+		ID = #{PC_LEAVE_ITEMID}
+	</select>
+</mapper>

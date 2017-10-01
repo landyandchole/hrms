@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="EdleStaffMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_STAFF
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		STAFF_ID,	
+		NO,	
+		NAME,	
+		SEX,	
+		SCHOOL,	
+		ADDRESS,	
+		TEL,	
+		ENTRY_DATE,	
+		IDCARD,	
+		JAPANESE,	
+		ENGLISH,	
+		PASS,	
+		PASS_NO,	
+		PASS_TERM,	
+		VISA,	
+		VISA_TYPE,	
+		TRAVEL_TYPE,	
+		STRENGTHS,	
+		DEVELOP_INTENT,	
+		FLAG,	
+		GRADUATE_DATE,	
+		TITLE,	
+		BACKSCHOOL_DATE,	
+		BACKCOMPANY_DATE,	
+		PASSWORD,	
+		STATUS,	
+		LEAVE_REASON,	
+		LEAVE_DATE,	
+		DEPARTMENT_ID,	
+		ROLE_ID,
+		DEPARTMENT_NAMES,
+		ATTITUDE_MARK,
+		JAPANESE_MARK,
+		ENGLISH_MARK,
+		JAVA_MARK,
+		ABAP_MARK,
+		YEARS_MARK,	
+		MEMO,
+		CREATIONUSER,
+		CREATIONDATE,
+		UPDATEUSER,
+		UPDATEDATE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{STAFF_ID},	
+		#{NO},	
+		#{staffNAME},	
+		#{SEX},	
+		#{SCHOOL},	
+		#{ADDRESS},	
+		#{TEL},	
+		#{ENTRY_DATE},	
+		#{IDCARD},	
+		#{JAPANESE},	
+		#{ENGLISH},	
+		#{PASS},	
+		#{PASS_NO},	
+		#{PASS_TERM},	
+		#{VISA},	
+		#{VISA_TYPE},	
+		#{TRAVEL_TYPE},	
+		#{STRENGTHS},	
+		#{DEVELOP_INTENT},	
+		#{FLAG},	
+		#{GRADUATE_DATE},	
+		#{TITLE},	
+		#{BACKSCHOOL_DATE},	
+		#{BACKCOMPANY_DATE},	
+		#{PASSWORD},	
+		#{STATUS},	
+		#{LEAVE_REASON},	
+		#{LEAVE_DATE},	
+		#{DEPARTMENT_ID},	
+		#{ROLE_ID},	
+		#{DEPARTMENT_NAMES},
+		#{ATTITUDE_MARK},
+		#{JAPANESE_MARK},
+		#{ENGLISH_MARK},
+		#{JAVA_MARK},
+		#{ABAP_MARK},
+		#{YEARS_MARK},	
+		#{MEMO},
+		#{CREATIONUSER},
+		#{CREATIONDATE},
+		#{UPDATEUSER},
+		#{UPDATEDATE}	
+	</sql>
+	
+	<update id="updateRemark" parameterType="pd">
+		update 
+			<include refid="tableName"></include>
+		set
+			MEMO = #{MEMO}
+		where
+			STAFF_ID = #{STAFF_ID}
+	</update>
+</mapper>

@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PcMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		PC_LIST
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		PC_ID,	
+		PC_NO,	
+		BRAND,	
+		RAM,	
+		HDISK,	
+		CHIP,		
+		TYPE,
+		PROGRAM,
+		OS,
+		DEPOT,
+		DEFECTS_LIABILITY_PERIOD,
+		COST,	
+		G_TIME,	
+		MAC,
+		LEVEL,	
+		ROOM,
+		FLOOR,
+		ROOM_NAME,
+		NOTE,
+		FLAG,
+		CREATIONUSER,
+		CREATIONDATE,
+		UPDATEUSER,
+		UPDATEDATE	
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{PC_ID},	
+		#{PC_NO},	
+		#{BRAND},	
+		#{RAM},	
+		#{HDISK},	
+		#{CHIP},		
+		#{TYPE},
+		#{PROGRAM},
+		#{OS},
+		#{DEPOT},
+		#{DEFECTS_LIABILITY_PERIOD},
+		#{COST},	
+		#{G_TIME},	
+		#{MAC},	
+		#{LEVEL},
+		#{ROOM},
+		#{FLOOR},
+		#{ROOM_NAME},	
+		#{NOTE},
+		#{FLAG},
+		#{CREATIONUSER},
+		#{CREATIONDATE},
+		#{UPDATEUSER},
+		#{UPDATEDATE}	
+	</sql>
+	
+
+	<!-- 新增-->
+ 	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert> 
+	
+		<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+			FLAG = #{FLAG},
+			UPDATEUSER = #{UPDATEUSER},
+			UPDATEDATE = #{UPDATEDATE}
+		where 
+			PC_ID = #{PC_ID}
+	</delete>
+	
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+		    PC_NO = #{PC_NO},
+		    BRAND = #{BRAND},				
+			RAM = #{RAM},						
+			HDISK = #{HDISK},
+			CHIP = #{CHIP},
+			TYPE = #{TYPE},
+			PROGRAM = #{PROGRAM},
+			OS = #{OS},
+			DEPOT = #{DEPOT},
+			DEFECTS_LIABILITY_PERIOD = #{DEFECTS_LIABILITY_PERIOD},
+			COST = #{COST},	
+			G_TIME = #{G_TIME},
+			MAC = #{MAC},
+			LEVEL = #{LEVEL},
+            ROOM = #{ROOM},
+            FLOOR = #{FLOOR},
+            ROOM_NAME = #{ROOM_NAME},
+			NOTE = #{NOTE}
+		where 
+		PC_ID = #{PC_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PC_ID = #{PC_ID}
+	</select>
+	
+	<!-- 通过NO获取数据 -->
+	<select id="findByNo" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			PC_NO = #{PC_NO}
+	</select>
+	<!-- 用PROGRAM字段查出ROOM_NAME -->
+	<select id="findByProgram" parameterType="String" resultType="String">
+		select
+			ROOM_NAME
+		from
+			PC_LIST
+		where
+			PROGRAM = #{Program}
+	</select>
+	
+	
+	
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+			pc.PC_ID,	
+			pc.PC_NO,	
+			pc.BRAND,	
+			pc.RAM,	
+			pc.HDISK,	
+			pc.CHIP,
+	        pc.TYPE,		
+			pc.PROGRAM,	
+			pc.OS,
+			dic.NAME,
+			pc.DEFECTS_LIABILITY_PERIOD,
+			pc.COST,
+		    pro.PROJECT_NAME,
+            pc.ROOM_NAME,
+			pc.G_TIME,	
+			pc.MAC,	
+			pc.NOTE
+		from 
+			pc_list pc 
+            LEFT JOIN sys_project pro ON pc.PROGRAM = pro.PROJECT_ID 
+            LEFT JOIN sys_dictionaries dic ON pc.DEPOT = dic.DICTIONARIES_ID
+           
+            where 1=1 and pc.FLAG = 0
+			<!-- <if test="pd.ROOM!= null and pd.ROOM != ''">检索
+				and
+				RIGHT(pc.ROOM_NAME,3) = dic.NAME
+			</if> -->
+			<if test="pd.PC_NO!= null and pd.PC_NO != ''"><!-- 检索 -->
+				and pc.PC_NO = #{pd.PC_NO}
+			</if>
+			<if test="pd.BRAND!= null and pd.BRAND != ''">
+				and pc.BRAND = #{pd.BRAND} 
+			</if>		
+			<if test="pd.RAM!= null and pd.RAM != ''">
+				and pc.RAM = #{pd.RAM}  
+			</if>		
+			<if test="pd.HDISK!= null and pd.HDISK != ''">
+				and pc.HDISK = #{pd.HDISK} 
+			</if>
+			<if test="pd.DEPOT!= null and pd.DEPOT != ''">
+				and pc.DEPOT = #{pd.DEPOT} 
+			</if>
+			<if test="pd.DEFECTS_LIABILITY_PERIOD!= null and pd.DEFECTS_LIABILITY_PERIOD != ''">
+				and pc.DEFECTS_LIABILITY_PERIOD = #{pd.DEFECTS_LIABILITY_PERIOD} 
+			</if>
+			<if test="pd.ROOM_NAME!= null and pd.ROOM_NAME != ''">
+				and pc.ROOM_NAME LIKE CONCAT(CONCAT('%',#{pd.ROOM_NAME}),'%') 
+			</if>
+<!--			<if test="pd.LEVEL!= null and pd.LEVEL != ''">
+				and pc.LEVEL = #{pd.LEVEL} 
+			</if>
+ 			<if test="pd.FLOOR!= null and pd.FLOOR != ''">
+				and pc.FLOOR = #{pd.FLOOR} 
+			</if>
+			<if test="pd.ROOM!= null and pd.ROOM != ''">
+				and pc.ROOM = (SELECT DICTIONARIES_ID FROM sys_dictionaries WHERE sys_dictionaries.NAME = #{pd.ROOM})
+			</if> -->
+			<if test="pd.G_TIME!= null and pd.G_TIME != ''">
+				and pc.G_TIME = #{pd.G_TIME} 
+			</if>
+			<if test="pd.PROGRAM!= null and pd.PROGRAM != ''">
+				and pro.PROJECT_NAME = #{pd.PROGRAM} 
+			</if>
+				order by pc.PC_NO ASC
+	</select>
+
+
+<select id="AdatalistPage" parameterType="page" resultType="pd">
+        select PROJECT_ID,PROJECT_NAME from sys_project 
+
+</select>
+
+<select id="PCstate" parameterType="page" resultType="pd">
+        select STATE from pc_leave group by STATE
+
+</select>
+
+<select id="listAllpc" parameterType="pd" resultType="pd">
+        select STATE from pc_leave group by STATE
+</select>
+
+<select id="listAllpro" parameterType="pd" resultType="pd">
+        select PROJECT_NAME from sys_project where FLAG='0'
+</select>
+
+    <!-- 获取房间号 -->
+	<select id="getLevel" parameterType="pd" resultType="pd">
+		select 
+			dic.NAME as NAME 
+		from 
+			sys_project pro,
+			sys_dictionaries dic
+		where 
+			dic.DICTIONARIES_ID = pro.PROJECT_ROOMS
+		 	and
+		 	pro.PROJECT_ROOMS = #{pd.level3}
+	</select> 
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+			FLAG = #{FLAG},
+			UPDATEUSER = #{UPDATEUSER},
+			UPDATEDATE = #{UPDATEDATE}
+		where 
+			PC_ID in
+		<foreach item="item" index="index" collection="ArrayDATA_IDS" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	<!-- 项目名 -->			
+	<select id="freeStaff" parameterType="pd" resultType="pd">
+		select * from sys_project as s where s.NAME NOT IN 
+		(select PROGRAM FROM PC_LIST WHERE #{kxsj} 
+		BETWEEN MEMBER_BTIME AND MEMBER_ETIME)		
+	</select>
+	<!-- 电脑总数 -->
+	<select id="count" parameterType="pd" resultType="pd">
+		select COUNT(*) as COUNT from pc_list where flag="0"
+	</select>
+	<!-- 电脑在库情况为进行中 -->
+	<select id="countdepot_have" parameterType="pd" resultType="pd">
+		select 
+			COUNT(DEPOT) as DEPOT_HAVE
+		from
+			pc_list
+		where
+			DEPOT = "进行中"
+	</select>
+	<!-- 电脑在库情况为损坏 -->
+	<select id="countdepot_no" parameterType="pd" resultType="pd">
+		select 
+			COUNT(DEPOT) AS DEPOT_NO
+		from
+			pc_list
+		where
+			DEPOT = "损坏"
+	</select>
+	<!-- 电脑在库完全情况(上边两个退休了) -->
+		<select id="countdepot" parameterType="pd" resultType="pd">
+		select p1.have1 as have1 , p2.have2 as have2 , p3.have3 as have3 , p4.have4 as have4, p5.have5 as have5, p6.have6 as have6
+		from (select count(*) as have1 from project_security as pc join sys_dictionaries as d on pc.PC_STATE=d.DICTIONARIES_ID where d.`NAME` = "入场准备中" and flag="0") p1 ,
+			 (select count(*) as have2 from project_security as pc join sys_dictionaries as d on pc.PC_STATE=d.DICTIONARIES_ID where d.`NAME` = "入场中" and flag="0") p2 ,
+			 (select count(DEPOT) as have3 from pc_list as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID where d.`NAME` = "已入场" and flag="0") p3 ,
+			 (select count(DEPOT) as have4 from pc_list as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID where d.`NAME` = "退场准备中" and flag="0") p4,
+			 (select count(DEPOT) as have5 from pc_list as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID where d.`NAME` = "闲置" and flag="0") p5,
+			 (select count(DEPOT) as have6 from pc_list as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID where d.`NAME` = "损坏" and flag="0") p6
+	</select>
+		
+	<!-- 电脑闲置情况 -->
+		<select id="countdep" parameterType="pd" resultType="pd">
+			 select count(DEPOT) as have from pc_list as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID where d.`NAME` = "闲置" and flag="0"
+	</select>
+	<!--查询闲置电脑的PC_NO -->
+	<select id="showDepot" parameterType="pd" resultType="pd">
+		select PC_ID,PC_NO,TYPE,	RAM,HDISK	
+		from PC_LIST as pc join sys_dictionaries as d on pc.DEPOT=d.DICTIONARIES_ID
+        WHERE flag="0" and d.`NAME`='闲置' and TYPE=#{TYPE}
+	</select>
+	
+	
+	<!-- 通过pc_no修改pc在库情况 -->
+	<update id="editDepot" parameterType="pd">
+	update
+		pc_list
+		set 
+			DEPOT = #{DEPOT}
+		where    
+         PC_NO=#{PC_NO} 
+	</update>
+	<select id="getPDByIds" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		where	
+		PC_NO = #{PC_NO}
+	</select>
+	<!-- 通过pc_id修改pc的项目和房间 -->
+	<update id="editPandR" parameterType="pd">
+	update
+		pc_list
+		set 
+		PROGRAM= #{PROGRAM},	
+		ROOM_NAME=#{ROOM_NAME}
+		where    
+         PC_NO=#{PC_NO} 
+	</update>
+</mapper>
+	

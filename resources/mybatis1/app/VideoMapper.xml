@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="VideoMapper">
+	<resultMap type="Video" id="video">
+		<id column="ID" property="ID"/>
+		<result column="VIDEONAME" property="VIDEONAME"/>
+		<result column="VIDEOPATH" property="VIDEOPATH"/>
+		<result column="UPLOADTIME" property="UPLOADTIME"/>
+		<result column="UPLOADUSER" property="UPLOADUSER"/>
+		<result column="USERNAME" property="USERNAME"/>
+		<result column="VIDEOGROUP" property="VIDEOGROUP"/>
+		<association property="VideoGroup" javaType="VideoGroup">
+			<id column="VIDEO_ID" property="VIDEO_ID"/>
+			<result column="NAME" property="NAME"/>
+		</association>
+	</resultMap>
+	<!--表名 -->
+	<sql id="tableName">
+		TB_VIDEO
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,	
+		VIDEONAME,	
+		VIDEOPATH,	
+		UPLOADTIME,	
+		UPLOADUSER,	
+		VIDEOGROUP
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},	
+		#{VIDEONAME},	
+		#{VIDEOPATH},	
+		#{UPLOADTIME},	
+		#{UPLOADUSER},		
+		#{VIDEOGROUP}
+	</sql>
+
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="deleteV" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ID = #{ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="editV" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			ID = #{ID},
+			VIDEONAME = #{VIDEONAME},
+			VIDEOPATH = #{VIDEOPATH},
+			UPLOADTIME = #{UPLOADTIME},
+			UPLOADUSER = #{UPLOADUSER},
+			VIDEOGROUP = #{VIDEOGROUP}
+		where 
+		ID = #{ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="String" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			ID = #{ID}
+	</select>
+	
+	<!-- 通过VIDEOGROUP获取数据 -->
+	<select id="findByVG" parameterType="String" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			VIDEOGROUP = #{VIDEOGROUP}
+	</select>
+	
+	<!-- 列表 及条件查询-->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+			*
+		from 
+			tb_video as tbv
+		    left join
+			oa_videogroup as oavg
+		on
+			tbv.VIDEOGROUP=oavg.VIDEO_ID
+		<where>
+		
+		
+		<!-- <if test="pd.VIDEONAME!= null and pd.VIDEONAME != ''">关键词检索
+			and	VIDEONAME LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			and tbv.VIDEONAME=#{pd.VIDEONAME} 
+		</if> -->
+		
+       <if test="pd.VIDEONAME!= null and pd.VIDEONAME != ''">
+		and	VIDEONAME LIKE CONCAT(CONCAT('%', #{pd.VIDEONAME}),'%')
+		</if>	
+		
+
+		<if test="pd.VIDEOGROUP!= null and pd.VIDEOGROUP != ''">
+			and tbv.VIDEOGROUP=#{pd.VIDEOGROUP} 
+		</if>
+		</where>
+		order by UPLOADTIME DESC
+	</select>
+	
+	
+	
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAllV" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>

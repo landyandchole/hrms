@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="FittingsMaMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		FITTINGS_RESULT
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		FIT_ID,	
+		FITTINGS_ID,
+		FITTINGS_NO,
+		FITTINGS_DATAS,
+		FITTINGS_DATAVALUE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{FIT_ID},	
+		#{FITTINGS_ID},	
+		#{FITTINGS_NO},	
+		#{FITTINGS_DATAS},	
+		#{FITTINGS_DATAVALUE}	
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			FITTINGS_NO = #{FITTINGS_NO}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			FIT_ID = #{FIT_ID},
+			FITTINGS_ID = #{FITTINGS_ID},
+			FITTINGS_NO = #{FITTINGS_NO},
+			FITTINGS_DATAS = #{FITTINGS_DATAS},
+			FITTINGS_DATAVALUE = #{FITTINGS_DATAVALUE}
+		where 
+		    FIT_ID = #{FIT_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			FIT_ID = #{FIT_ID}
+	</select>
+	
+	
+	
+	<select id="findByNo" parameterType="pd" resultType="pd" >
+		select
+		FR.FIT_ID,	
+		FR.FITTINGS_ID,
+		FR.FITTINGS_NO,
+		FR.FITTINGS_DATAS,
+		FR.FITTINGS_DATAVALUE,
+		FL.FITTINGS_NAME,
+        FF.FITTINGS_NAME DATAVALUE,
+        FO.FITTINGS_NAME TYPENAME
+		from 
+		fittings_result FR
+		LEFT JOIN FITTINGS_LIST FL  ON FL.FITTINGS_ID=FR.FITTINGS_DATAS
+		LEFT JOIN FITTINGS_LIST FF  ON FF.FITTINGS_ID=FR.FITTINGS_DATAVALUE
+		LEFT JOIN FITTINGS_LIST FO  ON FO.FITTINGS_ID=FR.FITTINGS_ID
+		where 
+			FITTINGS_NO = #{FITTINGS_NO}
+	</select>
+	
+	
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		FR.FIT_ID,	
+		FR.FITTINGS_ID,
+		FR.FITTINGS_NO,
+		FR.FITTINGS_DATAS,
+		FR.FITTINGS_DATAVALUE,
+		FL.FITTINGS_NAME
+		from 
+		fittings_result FR
+		LEFT JOIN FITTINGS_LIST FL  ON FL.FITTINGS_ID=FR.FITTINGS_ID
+		where 1=1
+		<if test="pd.FITTINGS_ID!= null and pd.FITTINGS_ID != ''"><!-- 关键词检索 -->
+			and FR.FITTINGS_ID=#{pd.FITTINGS_ID}
+		</if>
+		<if test="pd.FITTINGS_NO!= null and pd.FITTINGS_NO != ''"><!-- 关键词检索 -->
+			and FR.FITTINGS_NO=#{pd.FITTINGS_NO}
+			
+		</if>
+		group by FR.FITTINGS_NO
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			FITTINGS_NO in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>

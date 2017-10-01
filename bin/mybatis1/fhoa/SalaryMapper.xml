@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SalaryMapper">
+<!-- 查询员工薪资列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+
+	select
+	s.NO,
+	s.NAME AS STAFFNAME,
+	s.SEX,
+	dic.NAME AS TITLENAME,
+	o.SALARY,
+	s.DEPARTMENT_NAMES,
+	s.ENTRY_DATE,
+	s.STATUS,
+	dic3.NAME AS STATUSNAME,
+	dic4.NAME AS TRAVEL_TYPENAME
+	from
+	OA_STAFF s
+	LEFT JOIN oa_salary o ON s.`NO` = o.`NO`
+	LEFT JOIN SYS_DICTIONARIES dic ON s.TITLE = dic.DICTIONARIES_ID
+	LEFT JOIN SYS_DICTIONARIES dic3 ON s.STATUS = dic3.DICTIONARIES_ID
+	LEFT JOIN SYS_DICTIONARIES dic4 ON s.TRAVEL_TYPE = dic4.DICTIONARIES_ID
+	where 1=1 
+	<if test="pd.STAFFNAME!= null and pd.STAFFNAME != ''">
+			and	s.NAME LIKE CONCAT(CONCAT('%', #{pd.STAFFNAME}),'%')
+	</if>
+	<if test="pd.NO!= null and pd.NO != ''">
+			and	s.NO LIKE CONCAT(CONCAT('%', #{pd.NO}),'%')
+	</if>
+	<if test="pd.TITLE!= null and pd.TITLE != ''">
+			and s.TITLE = #{pd.TITLE} 
+		</if>
+		<if test="pd.STATUS!= null and pd.STATUS != ''">
+			and s.STATUS = #{pd.STATUS} 
+		</if>
+		<if test="pd.JAPANESE!= null and pd.JAPANESE != ''">
+			and s.JAPANESE = #{pd.JAPANESE} 
+		</if>
+		<if test="pd.ENGLISH!= null and pd.ENGLISH != ''">
+			and	s.ENGLISH = #{pd.ENGLISH} 
+		</if>		
+		<if test="pd.DEPARTMENT_ID!= null and pd.DEPARTMENT_ID != ''">
+			and	s.DEPARTMENT_ID in ${pd.item} 
+		</if>
+		<if test="pd.lsalary!=null and pd.lsalary!=''">
+			and o.SALARY &gt;= #{pd.lsalary} 
+		</if>
+		<if test="pd.hsalary!=null and pd.hsalary!=''">    
+			and o.SALARY &lt;= #{pd.hsalary} 
+		</if>	
+		<if test="pd.start!= null and pd.start != ''">
+			and	s.ENTRY_DATE &gt;= #{pd.start} 
+		</if>
+		<if test="pd.follow!= null and pd.follow != ''">
+			and	s.ENTRY_DATE &lt;= #{pd.follow} 
+		</if> 
+		order by s.NO
+</select>
+<!-- 插入员工薪资-->
+	<insert id="insertSalary" parameterType="pd" >
+     insert into oa_salary (SALARY_ID,NO,SALARY) values (#{SALARY_ID},#{NO},#{SALARY} )
+	
+</insert>
+<!-- 更新员工薪资-->
+	<update id="editSalary" parameterType="pd" >
+     update oa_salary set SALARY=#{SALARY} where NO=#{NO}
+
+</update>
+<!-- 查询员工薪资 -->
+	<select id="querySalary" parameterType="pd" resultType="pd">
+	select salary from oa_salary where NO=#{NO}
+</select>
+
+<!-- 批量插入薪资 -->
+<!-- 	 <insert id="insertAll" parameterType="java.util.List" >  
+    <selectKey resultType ="java.lang.String" keyProperty= "id" order= "AFTER">  
+        SELECT LAST_INSERT_ID()  
+    </selectKey > 
+    insert into salary (no,sal)  
+    values  
+    <foreach collection="list" item="item" index="index" separator="," >    
+       (#{item.no},#{item.sal}) 
+    </foreach>  
+     ON DUPLICATE KEY UPDATE  
+        no = values(no)  
+  </insert>   -->    
+  <insert id="insertAll" parameterType="java.util.List">
+    insert into oa_salary (SALARY_ID,NO,SALARY) values
+    <foreach collection="list" item="item" index="index" separator=",">
+    ((SELECT REPLACE(UUID(), '-', '') AS id),#{item.no},#{item.sal})
+    </foreach>
+     ON DUPLICATE KEY UPDATE  
+        no = values(no)  
+	</insert>
+
+<!-- 批量修改 -->
+	<update id="editAll" parameterType="pd">
+		update oa_salary set SALARY=SALARY+#{SALARY}
+		WHERE 
+			NO=#{NO}
+		<!-- <foreach item="item" index="index" collection="pd" open="(" separator="," close=")">
+                 #{item.NO}
+		</foreach>  -->
+	</update>
+
+</mapper>
